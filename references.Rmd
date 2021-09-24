@@ -1,5 +1,5 @@
 # References
-Hadley Wickham, Romain FranÃ§ois, Lionel Henry and Kirill MÃ¼ller
+Hadley Wickham, Romain Francois, Lionel Henry and Kirill Muller
 (2021). dplyr: A Grammar of Data Manipulation. R package version
 1.0.7. https://CRAN.R-project.org/package=dplyr
 

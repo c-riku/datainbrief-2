@@ -10,6 +10,7 @@ output:
     fig_height: 5
     df_print: paged
     number_sections: false
+    toc: true
 ---
 
 ***

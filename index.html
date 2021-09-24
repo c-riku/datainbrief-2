@@ -135,22 +135,30 @@ a.sourceLine {
 </section>
 
 
+<div id="TOC" class="toc">
+<div class="toc-box">
+<ul>
+<li><a href="#about-this-notebook">About this notebook</a></li>
+<li><a href="#process-ghg-data-from-gas-chromatography">Process GHG data from gas chromatography</a></li>
+<li><a href="#references">References</a></li>
+</ul>
+</div>
+</div>
 
 <section class="main-content">
 <hr />
 <div id="about-this-notebook" class="section level1">
 <h1>About this notebook</h1>
-<p>This notebook includes 3 scrips:<br />
-1. Grab file names<br />
-2. Process GHG flux data from gas chromatography<br />
-3. Process CO<sub>2</sub> flux data from gas Vaisala</p>
+<p>This notebook includes 2 scrips:<br />
+1. Process GHG flux data from gas chromatography<br />
+2. Process CO<sub>2</sub> flux data from the Vaisala instrument</p>
 <p><a href="https://github.com/c-riku/notebooks">My GitHub repository for these notebooks</a></p>
 <hr />
 </div>
 <div id="process-ghg-data-from-gas-chromatography" class="section level1">
 <h1>Process GHG data from gas chromatography</h1>
 <p>This script calculates gas (carbon dioxide, methane, nitrous oxide) flux in mg m<sup>-2</sup> s<sup>-1</sup> from gas chromatography data (concentration in ppm) using <em>dplyr</em> and <em>GLDEX</em> packages, see citation at the end of script.</p>
-<p><strong>2.1 Load libraries.</strong></p>
+<p><strong>1.1 Load libraries.</strong></p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">&quot;dplyr&quot;</span>)</span></code></pre></div>
 <pre><code>## 
 ## Attaching package: &#39;dplyr&#39;</code></pre>
@@ -163,7 +171,7 @@ a.sourceLine {
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">&quot;GLDEX&quot;</span>)</span></code></pre></div>
 <pre><code>## Loading required package: cluster</code></pre>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">&quot;prettydoc&quot;</span>)</span></code></pre></div>
-<p><strong>2.2 Set directory and load data.</strong></p>
+<p><strong>1.2 Set directory and load data.</strong></p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>Path <span class="ot">&lt;-</span> <span class="fu">setwd</span>(<span class="st">&quot;D:/Git/project-3/raw-data/field/&quot;</span>)</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">&quot;gasvials.csv&quot;</span>, <span class="at">header =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="fu">head</span>(data))</span></code></pre></div>
@@ -325,7 +333,7 @@ a.sourceLine {
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="fu">str</span>(data))</span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(data)</span></code></pre></div>
 <pre><code>## &#39;data.frame&#39;:    498 obs. of  17 variables:
 ##  $ CH4      : num  1.89 1.89 1.92 1.92 1.93 ...
 ##  $ N2O      : num  0.331 0.333 0.333 0.332 0.335 ...
@@ -344,8 +352,7 @@ a.sourceLine {
 ##  $ SM       : num  29.2 29.2 29.2 29.2 29.2 ...
 ##  $ Pressure : int  1020 1020 1020 1020 1020 1020 1020 1020 1020 1020 ...
 ##  $ ChamberV1: num  0.00728 0.00728 0.00728 0.00728 0.00728 0.00728 0.00728 0.00728 0.00728 0.00728 ...</code></pre>
-<p>|| || || ||</p>
-<p><strong>2.3 Check and remove missing data by row.</strong></p>
+<p><strong>1.3 Check and remove missing data by row.</strong></p>
 <div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">colSums</span>(<span class="fu">is.na</span>(data))</span></code></pre></div>
 <pre><code>##       CH4       N2O    Bottle        dt       dts   CollarA  ChamberV      File 
 ##         0         0         0         0         0         0         0         0 
@@ -354,22 +361,22 @@ a.sourceLine {
 ## ChamberV1 
 ##         0</code></pre>
 <div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">na.exclude</span>(data)</span></code></pre></div>
-<p><strong>2.4 Pick specific bottles (closure time).</strong><br />
+<p><strong>1.4 Pick specific bottles (closure time).</strong><br />
 <em>This code selects measurements from bottle 113 to bottle 118.</em></p>
 <div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>sub <span class="ot">&lt;-</span> data <span class="sc">%&gt;%</span> <span class="fu">filter</span>(Bottle <span class="sc">&gt;=</span> <span class="dv">113</span> <span class="sc">&amp;</span> Bottle <span class="sc">&lt;=</span> <span class="dv">118</span>)</span></code></pre></div>
-<p><strong>2.5 Model and calculate standard deviation.</strong></p>
+<p><strong>1.5 Model and calculate standard deviation.</strong></p>
 <div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>m1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(CH4 <span class="sc">~</span> dt, <span class="at">data =</span> sub)</span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">coef</span>(m1)</span></code></pre></div>
 <pre><code>##  (Intercept)           dt 
 ##  2.078411374 -0.001790028</code></pre>
 <div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>sd2 <span class="ot">&lt;-</span> <span class="fu">sd</span>(m1<span class="sc">$</span>fitted.values)</span></code></pre></div>
-<p><strong>2.6 Plot regression line and observations.</strong></p>
+<p><strong>1.6 Plot regression line and observations.</strong></p>
 <div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(CH4 <span class="sc">~</span> dt, <span class="at">data =</span> sub)</span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(m1, <span class="at">col =</span> <span class="st">&quot;blue&quot;</span>, <span class="at">lwd =</span> <span class="dv">2</span>)</span>
 <span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(m1<span class="sc">$</span>coefficients[<span class="dv">1</span>] <span class="sc">+</span> sd2, m1<span class="sc">$</span>coefficients[<span class="dv">2</span>])</span>
 <span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(m1<span class="sc">$</span>coefficients[<span class="dv">1</span>] <span class="sc">-</span> sd2, m1<span class="sc">$</span>coefficients[<span class="dv">2</span>])</span></code></pre></div>
 <p><img src="data:image/png;base64,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" /><!-- --></p>
-<p><strong>2.7. Remove observations as necessary and refit model with sub1. If removal is not necessary, use the rest of script with sub instead of sub1.</strong><br />
+<p><strong>1.7. Remove observations as necessary and refit model with sub1. If removal is not necessary, use the rest of script with sub instead of sub1.</strong><br />
 <em>This code removes rows 1 and 4 from the sub dataset.</em></p>
 <div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>sub1 <span class="ot">&lt;-</span> sub[<span class="sc">-</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">4</span>),]</span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>m1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(CH4 <span class="sc">~</span> dt, <span class="at">data =</span> sub1)</span>
@@ -382,22 +389,22 @@ a.sourceLine {
 <span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(m1<span class="sc">$</span>coefficients[<span class="dv">1</span>] <span class="sc">+</span> sd2, m1<span class="sc">$</span>coefficients[<span class="dv">2</span>])</span>
 <span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(m1<span class="sc">$</span>coefficients[<span class="dv">1</span>] <span class="sc">-</span> sd2, m1<span class="sc">$</span>coefficients[<span class="dv">2</span>])</span></code></pre></div>
 <p><img src="data:image/png;base64,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" /><!-- --></p>
-<p><strong>2.8 Add fitted values to dataframe.</strong></p>
+<p><strong>1.8 Add fitted values to dataframe.</strong></p>
 <div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>sub1<span class="sc">$</span>CH4fitted <span class="ot">&lt;-</span> <span class="fu">fitted</span>(m1)</span></code></pre></div>
-<p><strong>2.9 Calculate and add fitted diff to dataframe.</strong></p>
+<p><strong>1.9 Calculate and add fitted diff to dataframe.</strong></p>
 <div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>sub1<span class="sc">$</span>CH4diff <span class="ot">&lt;-</span> sub1<span class="sc">$</span>CH4fitted <span class="sc">-</span> </span>
 <span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">lag</span>(sub1<span class="sc">$</span>CH4fitted, <span class="at">default =</span> <span class="fu">first</span>(sub1<span class="sc">$</span>CH4fitted))</span></code></pre></div>
-<p><strong>2.10 Flux calculation.</strong><br />
+<p><strong>1.10 Flux calculation.</strong><br />
 <em>This code calculates CH<sub>4</sub> flux in mg CH<sub>4</sub> m<sup>-2</sup> s<sup>-1</sup>.</em><br />
 <em>Remember to adjust the flux calculation according to the gas respective molar mass, CO<sub>2</sub> = 44.01, N<sub>2</sub>O = 44.013, CH<sub>4</sub> = 16.042.</em></p>
 <div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>flux <span class="ot">&lt;-</span> sub1<span class="sc">$</span>CH4diff <span class="sc">*</span> <span class="fl">16.042</span> <span class="sc">*</span> sub1<span class="sc">$</span>Pressure <span class="sc">*</span> </span>
 <span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  <span class="fl">273.15</span> <span class="sc">/</span> (<span class="fl">22.414</span> <span class="sc">*</span> <span class="dv">1013</span> <span class="sc">*</span>(sub1<span class="sc">$</span>ST <span class="sc">+</span> <span class="fl">273.15</span>)) <span class="sc">*</span></span>
 <span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>  (sub1<span class="sc">$</span>ChamberV <span class="sc">/</span> sub1<span class="sc">$</span>CollarA) <span class="sc">/</span> sub1<span class="sc">$</span>dts</span></code></pre></div>
-<p><strong>2.11 Remove NaN and false zeros.</strong></p>
+<p><strong>1.11 Remove NaN and false zeros.</strong></p>
 <div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(flux)</span>
 <span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">na.omit</span>(df)</span>
 <span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">fun.zero.omit</span>(df)</span></code></pre></div>
-<p><strong>2.12 Write down average flux for chosen bottles.</strong><br />
+<p><strong>1.12 Write down average flux for chosen bottles.</strong><br />
 <em>The mean flux for bottles 113-118 is</em></p>
 <div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(df<span class="sc">$</span>flux)</span></code></pre></div>
 <pre><code>## [1] -6.048425e-06</code></pre>
@@ -405,7 +412,7 @@ a.sourceLine {
 </div>
 <div id="references" class="section level1">
 <h1>References</h1>
-<p>Hadley Wickham, Romain FranÃ§ois, Lionel Henry and Kirill MÃ¼ller (2021). dplyr: A Grammar of Data Manipulation. R package version 1.0.7. <a href="https://CRAN.R-project.org/package=dplyr" class="uri">https://CRAN.R-project.org/package=dplyr</a></p>
+<p>Hadley Wickham, Romain Francois, Lionel Henry and Kirill Muller (2021). dplyr: A Grammar of Data Manipulation. R package version 1.0.7. <a href="https://CRAN.R-project.org/package=dplyr" class="uri">https://CRAN.R-project.org/package=dplyr</a></p>
 <p>Steve Su, with contributions from: Diethelm Wuertz, Martin Maechler, Rmetrics core team members for low discrepancy algorithm, Juha Karvanen for L moments codes, Robert King for gld C codes, starship codes, Benjamin Dean for corrections, input in ks.gof code and R core team for histsu function. (2020). GLDEX: Fitting Single and Mixture of Generalised Lambda Distributions (RS and FMKL) using Various Methods. R package version 2.0.0.7. <a href="https://CRAN.R-project.org/package=GLDEX" class="uri">https://CRAN.R-project.org/package=GLDEX</a></p>
 <hr />
 </div>

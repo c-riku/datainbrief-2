@@ -1,0 +1,13 @@
+# Process CO<sub>2</sub> data from the Vaisala instrument
+
+This script calculates carbon dioxide flux in mg m<sup>-2</sup> s<sup>-1</sup> from the Vaisala instrument (concentration in ppm) using *dplyr*, *plyr*, *minpack.lm*, *readbulk*, and *ggplot2* packages, see citation at the end of script.
+
+**2.1 Load libraries.**
+
+```{r}
+library("readbulk")
+library("plyr")
+library("dplyr")
+library("minpack.lm")
+library("ggplot2")
+```
