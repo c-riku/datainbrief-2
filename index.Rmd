@@ -1,0 +1,16 @@
+---
+title: "Notebooks"
+author: "Caius Ribeiro-Kumara"
+output:
+  prettydoc::html_pretty:
+  theme: cayman
+  highlight: github
+---
+
+***
+  
+```{r child = "process-data-GHG.Rmd"}
+```
+  
+***
+
