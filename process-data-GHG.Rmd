@@ -1,18 +1,4 @@
----
-title: "Process GHG data from gas chromatography"
-author: "Caius Ribeiro-Kumara"
-date: "24/09/2021"
-output:
-  prettydoc::html_pretty:
-  theme: cayman
-  highlight: github
----
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = T)
-```
-
-## Description
+# Process GHG data from gas chromatography
 
 This script calculates gas (carbon dioxide, methane, nitrous oxide) flux
 in mg m<sup>-2</sup> s<sup>-1</sup> from gas chromatography data (concentration in ppm) using *dplyr* and *GLDEX* packages, see citation at the end of script.
@@ -112,7 +98,7 @@ df <- fun.zero.omit(df)
 mean(df$flux)
 ```
 
-## References
+### References
 Hadley Wickham, Romain François, Lionel Henry and Kirill Müller
 (2021). dplyr: A Grammar of Data Manipulation. R package version
 1.0.7. https://CRAN.R-project.org/package=dplyr
