@@ -9,6 +9,11 @@ output:
 
 ***
   
+```{r child = "about.Rmd"}
+```
+  
+***
+  
 ```{r child = "process-data-GHG.Rmd"}
 ```
   
