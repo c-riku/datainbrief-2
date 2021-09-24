@@ -25,6 +25,11 @@ output:
   
 ***
   
+```{r child = "process-data-CO2.Rmd"}
+```
+  
+***
+  
 ```{r child = "references.Rmd"}
 ```
   

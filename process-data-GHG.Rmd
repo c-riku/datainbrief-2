@@ -1,14 +1,15 @@
 # Process GHG data from gas chromatography
 
 This script calculates gas (carbon dioxide, methane, nitrous oxide) flux
-in mg m<sup>-2</sup> s<sup>-1</sup> from gas chromatography data (concentration in ppm) using *dplyr* and *GLDEX* packages, see citation at the end of script.
-
+in mg m<sup>-2</sup> s<sup>-1</sup> from gas chromatography data (concentration in ppm) using a linear regression fit.
 
 **1.1 Load libraries.**
 ```{r}
+library("readbulk")
+library("plyr")
 library("dplyr")
+library("minpack.lm")
 library("GLDEX")
-library("prettydoc")
 ```
 
 **1.2 Set directory and load data.**

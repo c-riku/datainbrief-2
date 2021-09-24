@@ -140,6 +140,7 @@ a.sourceLine {
 <ul>
 <li><a href="#about-this-notebook">About this notebook</a></li>
 <li><a href="#process-ghg-data-from-gas-chromatography">Process GHG data from gas chromatography</a></li>
+<li><a href="#process-co2-data-from-the-vaisala-instrument">Process CO<sub>2</sub> data from the Vaisala instrument</a></li>
 <li><a href="#references">References</a></li>
 </ul>
 </div>
@@ -152,25 +153,32 @@ a.sourceLine {
 <p>This notebook includes 2 scrips:<br />
 1. Process GHG flux data from gas chromatography<br />
 2. Process CO<sub>2</sub> flux data from the Vaisala instrument</p>
+<p>Packages used <em>plyr</em>, <em>dplyr</em>, <em>minpack.lm</em>, <em>readbulk</em>, <em>ggplot2</em>, and <em>GLDEX</em>. See citation at the end of script.</p>
 <p><a href="https://github.com/c-riku/notebooks">My GitHub repository for these notebooks</a></p>
 <hr />
 </div>
 <div id="process-ghg-data-from-gas-chromatography" class="section level1">
 <h1>Process GHG data from gas chromatography</h1>
-<p>This script calculates gas (carbon dioxide, methane, nitrous oxide) flux in mg m<sup>-2</sup> s<sup>-1</sup> from gas chromatography data (concentration in ppm) using <em>dplyr</em> and <em>GLDEX</em> packages, see citation at the end of script.</p>
+<p>This script calculates gas (carbon dioxide, methane, nitrous oxide) flux in mg m<sup>-2</sup> s<sup>-1</sup> from gas chromatography data (concentration in ppm) using a linear regression fit.</p>
 <p><strong>1.1 Load libraries.</strong></p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">&quot;dplyr&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">&quot;readbulk&quot;</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">&quot;plyr&quot;</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">&quot;dplyr&quot;</span>)</span></code></pre></div>
 <pre><code>## 
 ## Attaching package: &#39;dplyr&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:plyr&#39;:
+## 
+##     arrange, count, desc, failwith, id, mutate, rename, summarise,
+##     summarize</code></pre>
 <pre><code>## The following objects are masked from &#39;package:stats&#39;:
 ## 
 ##     filter, lag</code></pre>
 <pre><code>## The following objects are masked from &#39;package:base&#39;:
 ## 
 ##     intersect, setdiff, setequal, union</code></pre>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">&quot;GLDEX&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">&quot;minpack.lm&quot;</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">&quot;GLDEX&quot;</span>)</span></code></pre></div>
 <pre><code>## Loading required package: cluster</code></pre>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">&quot;prettydoc&quot;</span>)</span></code></pre></div>
 <p><strong>1.2 Set directory and load data.</strong></p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>Path <span class="ot">&lt;-</span> <span class="fu">setwd</span>(<span class="st">&quot;D:/Git/project-3/raw-data/field/&quot;</span>)</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">&quot;gasvials.csv&quot;</span>, <span class="at">header =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
@@ -410,9 +418,160 @@ a.sourceLine {
 <pre><code>## [1] -6.048425e-06</code></pre>
 <hr />
 </div>
+<div id="process-co2-data-from-the-vaisala-instrument" class="section level1">
+<h1>Process CO<sub>2</sub> data from the Vaisala instrument</h1>
+<p>This script calculates carbon dioxide flux in mg m<sup>-2</sup> s<sup>-1</sup> from the Vaisala instrument (concentration in ppm) using a linear regression fit.</p>
+<p><strong>2.1 Set directory and load data.</strong></p>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>raw_data <span class="ot">&lt;-</span> <span class="fu">read_bulk</span>(<span class="at">directory =</span> <span class="st">&quot;D:/Git/project-3/raw-data/vaisala-raw/&quot;</span>,</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>                      <span class="at">subdirectories =</span> <span class="fu">c</span>(<span class="st">&quot;01&quot;</span>, <span class="st">&quot;02&quot;</span>, <span class="st">&quot;03&quot;</span>, <span class="st">&quot;04&quot;</span>),</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>                      <span class="at">extension =</span> <span class="st">&quot;.csv&quot;</span>)</span></code></pre></div>
+<pre><code>## Start merging subdirectory: 01</code></pre>
+<pre><code>## Reading 2018-08-01 0_49.csv</code></pre>
+<pre><code>## Reading 2018-08-01 1_38.csv</code></pre>
+<pre><code>## Reading 2018-08-01 2_30.csv</code></pre>
+<pre><code>## Reading 2018-08-01 20_21.csv</code></pre>
+<pre><code>## Reading 2018-08-01 21_11.csv</code></pre>
+<pre><code>## Reading 2018-08-01 21_56.csv</code></pre>
+<pre><code>## Reading 2018-08-02 0_22.csv</code></pre>
+<pre><code>## Reading 2018-08-02 1_47.csv</code></pre>
+<pre><code>## Reading 2018-08-02 10_04.csv</code></pre>
+<pre><code>## Reading 2018-08-02 10_44.csv</code></pre>
+<pre><code>## Reading 2018-08-02 11_46.csv</code></pre>
+<pre><code>## Reading 2018-08-02 2_30.csv</code></pre>
+<pre><code>## Reading 2018-08-02 9_30.csv</code></pre>
+<pre><code>## Reading 2018-08-03 11_18.csv</code></pre>
+<pre><code>## Reading 2018-08-03 12_01.csv</code></pre>
+<pre><code>## Reading 2018-08-03 13_54.csv</code></pre>
+<pre><code>## Reading 2018-08-03 14_55.csv</code></pre>
+<pre><code>## Reading 2018-08-03 15_36.csv</code></pre>
+<pre><code>## Reading 2018-08-04 11_12.csv</code></pre>
+<pre><code>## Reading 2018-08-04 12_05.csv</code></pre>
+<pre><code>## Reading 2018-08-04 12_38.csv</code></pre>
+<pre><code>## Reading 2018-08-04 13_55.csv</code></pre>
+<pre><code>## Reading 2018-08-04 15_04.csv</code></pre>
+<pre><code>## Reading 2018-08-04 15_42.csv</code></pre>
+<pre><code>## Reading 2018-08-05 10_55.csv</code></pre>
+<pre><code>## Reading 2018-08-05 11_32.csv</code></pre>
+<pre><code>## Reading 2018-08-05 12_23.csv</code></pre>
+<pre><code>## Reading 2018-08-05 13_49.csv</code></pre>
+<pre><code>## Reading 2018-08-05 14_22.csv</code></pre>
+<pre><code>## Reading 2018-08-05 15_04.csv</code></pre>
+<pre><code>## Reading 2018-08-06 10_33.csv</code></pre>
+<pre><code>## Reading 2018-08-06 11_39.csv</code></pre>
+<pre><code>## Reading 2018-08-06 12_57.csv</code></pre>
+<pre><code>## Reading 2018-08-06 9_41.csv</code></pre>
+<pre><code>## Start merging subdirectory: 02</code></pre>
+<pre><code>## Reading 2018-08-01 0_31.csv</code></pre>
+<pre><code>## Reading 2018-08-01 1_41.csv</code></pre>
+<pre><code>## Reading 2018-08-01 2_34.csv</code></pre>
+<pre><code>## Reading 2018-08-01 20_25.csv</code></pre>
+<pre><code>## Reading 2018-08-01 20_56.csv</code></pre>
+<pre><code>## Reading 2018-08-01 22_00.csv</code></pre>
+<pre><code>## Reading 2018-08-02 0_31.csv</code></pre>
+<pre><code>## Reading 2018-08-02 1_31.csv</code></pre>
+<pre><code>## Reading 2018-08-02 10_16.csv</code></pre>
+<pre><code>## Reading 2018-08-02 10_57.csv</code></pre>
+<pre><code>## Reading 2018-08-02 11_59.csv</code></pre>
+<pre><code>## Reading 2018-08-02 2_15.csv</code></pre>
+<pre><code>## Reading 2018-08-02 9_18.csv</code></pre>
+<pre><code>## Reading 2018-08-03 11_31.csv</code></pre>
+<pre><code>## Reading 2018-08-03 12_14.csv</code></pre>
+<pre><code>## Reading 2018-08-03 13_41.csv</code></pre>
+<pre><code>## Reading 2018-08-03 15_11.csv</code></pre>
+<pre><code>## Reading 2018-08-03 15_47.csv</code></pre>
+<pre><code>## Reading 2018-08-04 11_25.csv</code></pre>
+<pre><code>## Reading 2018-08-04 11_52.csv</code></pre>
+<pre><code>## Reading 2018-08-04 12_50.csv</code></pre>
+<pre><code>## Reading 2018-08-04 14_07.csv</code></pre>
+<pre><code>## Reading 2018-08-04 14_53.csv</code></pre>
+<pre><code>## Reading 2018-08-04 15_30.csv</code></pre>
+<pre><code>## Reading 2018-08-05 10_43.csv</code></pre>
+<pre><code>## Reading 2018-08-05 11_22.csv</code></pre>
+<pre><code>## Reading 2018-08-05 12_19.csv</code></pre>
+<pre><code>## Reading 2018-08-05 13_38.csv</code></pre>
+<pre><code>## Reading 2018-08-05 14_16.csv</code></pre>
+<pre><code>## Reading 2018-08-05 14_58.csv</code></pre>
+<pre><code>## Reading 2018-08-06 10_27.csv</code></pre>
+<pre><code>## Reading 2018-08-06 10_52.csv</code></pre>
+<pre><code>## Reading 2018-08-06 12_45.csv</code></pre>
+<pre><code>## Reading 2018-08-06 9_28.csv</code></pre>
+<pre><code>## Start merging subdirectory: 03</code></pre>
+<pre><code>## Reading 2018-08-05 10_56.csv</code></pre>
+<pre><code>## Reading 2018-08-05 12_07.csv</code></pre>
+<pre><code>## Reading 2018-08-05 14_29.csv</code></pre>
+<pre><code>## Reading 2018-08-06 10_31.csv</code></pre>
+<pre><code>## Reading 2018-08-06 11_40.csv</code></pre>
+<pre><code>## Reading 2018-08-06 13_07.csv</code></pre>
+<pre><code>## Reading 2018-08-06 9_32.csv</code></pre>
+<pre><code>## Start merging subdirectory: 04</code></pre>
+<pre><code>## Reading 2018-08-05 10_50.csv</code></pre>
+<pre><code>## Reading 2018-08-05 12_12.csv</code></pre>
+<pre><code>## Reading 2018-08-05 14_23.csv</code></pre>
+<pre><code>## Reading 2018-08-06 10_25.csv</code></pre>
+<pre><code>## Reading 2018-08-06 10_57.csv</code></pre>
+<pre><code>## Reading 2018-08-06 11_34.csv</code></pre>
+<pre><code>## Reading 2018-08-06 13_00.csv</code></pre>
+<pre><code>## Reading 2018-08-06 9_26.csv</code></pre>
+<p><strong>2.2 Replace values in “column T.II….C” with the non-NA values from column “TGAS.I….C” creating new column “TempChamber”.</strong></p>
+<div class="sourceCode" id="cb117"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb117-1"><a href="#cb117-1" aria-hidden="true" tabindex="-1"></a>raw_data<span class="sc">$</span>TempChamber <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(<span class="fu">is.na</span>(raw_data<span class="sc">$</span>T.II....C),</span>
+<span id="cb117-2"><a href="#cb117-2" aria-hidden="true" tabindex="-1"></a>                               raw_data<span class="sc">$</span>TGAS.I....C, raw_data<span class="sc">$</span>T.II....C)</span></code></pre></div>
+<p><strong>2.3 Rename variables to nicer things.</strong></p>
+<div class="sourceCode" id="cb118"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb118-1"><a href="#cb118-1" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(raw_data)[<span class="fu">names</span>(raw_data) <span class="sc">==</span> <span class="st">&quot;X&quot;</span>] <span class="ot">&lt;-</span> <span class="st">&quot;Time&quot;</span></span>
+<span id="cb118-2"><a href="#cb118-2" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(raw_data)[<span class="fu">names</span>(raw_data) <span class="sc">==</span> <span class="st">&quot;CO2.I...ppm&quot;</span>] <span class="ot">&lt;-</span> <span class="st">&quot;CO2&quot;</span></span>
+<span id="cb118-3"><a href="#cb118-3" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(raw_data)[<span class="fu">names</span>(raw_data) <span class="sc">==</span> <span class="st">&quot;RH.II....&quot;</span>] <span class="ot">&lt;-</span> <span class="st">&quot;RH&quot;</span></span>
+<span id="cb118-4"><a href="#cb118-4" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(raw_data)[<span class="fu">names</span>(raw_data) <span class="sc">==</span> <span class="st">&quot;Subdirectory&quot;</span>] <span class="ot">&lt;-</span> <span class="st">&quot;Vaisala&quot;</span></span></code></pre></div>
+<p><strong>2.4 Removing unnecessary columns.</strong><br />
+<em>This code removes 3rd and 7th columns.</em></p>
+<div class="sourceCode" id="cb119"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb119-1"><a href="#cb119-1" aria-hidden="true" tabindex="-1"></a>raw_data <span class="ot">&lt;-</span> <span class="fu">select</span>(raw_data, <span class="sc">-</span><span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">7</span>))</span></code></pre></div>
+<p><strong>2.5 Grab metadata (same path as Path above).</strong></p>
+<div class="sourceCode" id="cb120"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb120-1"><a href="#cb120-1" aria-hidden="true" tabindex="-1"></a>fl <span class="ot">&lt;-</span> <span class="fu">dir</span>(<span class="st">&quot;D:/Git/project-3/raw-data/vaisala-raw/&quot;</span>)[<span class="fu">grepl</span>(<span class="st">&#39;</span><span class="sc">\\</span><span class="st">.csv$&#39;</span>, <span class="fu">dir</span>(<span class="st">&quot;D:/Git/project-3/raw-data/vaisala-raw/&quot;</span>))]</span>
+<span id="cb120-2"><a href="#cb120-2" aria-hidden="true" tabindex="-1"></a>fl <span class="ot">&lt;-</span> <span class="fu">paste</span>(<span class="st">&quot;D:/Git/project-3/raw-data/vaisala-raw/&quot;</span>, fl, <span class="at">sep =</span> <span class="st">&#39;&#39;</span>)</span>
+<span id="cb120-3"><a href="#cb120-3" aria-hidden="true" tabindex="-1"></a>meta <span class="ot">&lt;-</span> <span class="fu">do.call</span>(rbind,</span>
+<span id="cb120-4"><a href="#cb120-4" aria-hidden="true" tabindex="-1"></a>                <span class="fu">lapply</span>(fl, read.csv, <span class="at">as.is =</span> <span class="cn">TRUE</span>))</span></code></pre></div>
+<p><strong>2.6 Merge datasets by file name keeping order.</strong></p>
+<div class="sourceCode" id="cb121"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb121-1"><a href="#cb121-1" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(meta)[<span class="fu">names</span>(meta) <span class="sc">==</span> <span class="st">&quot;ï..File&quot;</span>] <span class="ot">&lt;-</span> <span class="st">&quot;File&quot;</span></span>
+<span id="cb121-2"><a href="#cb121-2" aria-hidden="true" tabindex="-1"></a>proc_data <span class="ot">&lt;-</span> <span class="fu">join</span>(raw_data, meta,</span>
+<span id="cb121-3"><a href="#cb121-3" aria-hidden="true" tabindex="-1"></a>                <span class="at">type =</span> <span class="st">&quot;inner&quot;</span>)</span></code></pre></div>
+<pre><code>## Joining by: File</code></pre>
+<p><strong>2.7 Remove missing Vaisala data.</strong></p>
+<div class="sourceCode" id="cb123"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb123-1"><a href="#cb123-1" aria-hidden="true" tabindex="-1"></a><span class="fu">colSums</span>(<span class="fu">is.na</span>(proc_data))</span></code></pre></div>
+<pre><code>##        Time         CO2          RH     Vaisala        File TempChamber 
+##           0           4           0           0           0           3 
+##     Closure      Calib1      Calib2        Year   Intensity        Plot 
+##           0           0           0           0           0           0 
+##      Collar     CollarA    ChamberV    Pressure          ST          SM 
+##           0           0           0           0           0           0</code></pre>
+<div class="sourceCode" id="cb125"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb125-1"><a href="#cb125-1" aria-hidden="true" tabindex="-1"></a>proc_data <span class="ot">&lt;-</span> <span class="fu">na.exclude</span>(proc_data)</span></code></pre></div>
+<p><strong>2.8 Calibrate CO2 according to Vaisala</strong></p>
+<div class="sourceCode" id="cb126"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb126-1"><a href="#cb126-1" aria-hidden="true" tabindex="-1"></a>proc_data<span class="sc">$</span>CO2calib <span class="ot">&lt;-</span> <span class="fu">with</span> (proc_data, (CO2 <span class="sc">-</span> Calib1) <span class="sc">/</span> Calib2)</span></code></pre></div>
+<p><strong>2.9 To calculate dt we need to to convert Time from factor to POSIXct.</strong></p>
+<div class="sourceCode" id="cb127"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb127-1"><a href="#cb127-1" aria-hidden="true" tabindex="-1"></a>proc_data<span class="sc">$</span>Datetime <span class="ot">&lt;-</span> <span class="fu">as.POSIXct</span>(<span class="fu">paste</span>(proc_data<span class="sc">$</span>Time,<span class="at">tz =</span> <span class="st">&quot;&quot;</span>),</span>
+<span id="cb127-2"><a href="#cb127-2" aria-hidden="true" tabindex="-1"></a>                                 <span class="at">format =</span> <span class="st">&quot;%d/%m/%Y %H:%M:%S&quot;</span>)</span></code></pre></div>
+<p><strong>2.10 Pick specific Vaisala and closure (file).</strong><br />
+<em>This code picked Vaisala 4 and closure 8.</em></p>
+<div class="sourceCode" id="cb128"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb128-1"><a href="#cb128-1" aria-hidden="true" tabindex="-1"></a>sub <span class="ot">&lt;-</span> <span class="fu">subset</span>(proc_data, Vaisala <span class="sc">==</span> <span class="st">&quot;04&quot;</span> <span class="sc">&amp;</span> Closure <span class="sc">==</span> <span class="st">&quot;8&quot;</span>)</span>
+<span id="cb128-2"><a href="#cb128-2" aria-hidden="true" tabindex="-1"></a>sub<span class="sc">$</span>dt <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(sub<span class="sc">$</span>Datetime <span class="sc">-</span> sub<span class="sc">$</span>Datetime[<span class="dv">1</span>])</span>
+<span id="cb128-3"><a href="#cb128-3" aria-hidden="true" tabindex="-1"></a>model1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(CO2calib <span class="sc">~</span> dt, <span class="at">data =</span> sub)</span>
+<span id="cb128-4"><a href="#cb128-4" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(CO2calib <span class="sc">~</span> dt, <span class="at">data =</span> sub)</span>
+<span id="cb128-5"><a href="#cb128-5" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(model1, <span class="at">col =</span> <span class="st">&quot;blue&quot;</span>, <span class="at">lwd =</span> <span class="dv">2</span>)</span></code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+<p><strong>2.11 Add fitted values to dataframe.</strong></p>
+<div class="sourceCode" id="cb129"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb129-1"><a href="#cb129-1" aria-hidden="true" tabindex="-1"></a>sub<span class="sc">$</span>CO2fitted <span class="ot">&lt;-</span> <span class="fu">fitted</span>(model1)</span></code></pre></div>
+<p><strong>2.12 Calculate average CO2.</strong></p>
+<div class="sourceCode" id="cb130"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb130-1"><a href="#cb130-1" aria-hidden="true" tabindex="-1"></a>flux <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(<span class="fu">coef</span>(model1)[<span class="dv">2</span>] <span class="sc">*</span></span>
+<span id="cb130-2"><a href="#cb130-2" aria-hidden="true" tabindex="-1"></a>                     (sub<span class="sc">$</span>ChamberV <span class="sc">/</span> sub<span class="sc">$</span>CollarA) <span class="sc">*</span></span>
+<span id="cb130-3"><a href="#cb130-3" aria-hidden="true" tabindex="-1"></a>                     (<span class="fl">44.01</span> <span class="sc">/</span> <span class="fl">22.414</span>) <span class="sc">*</span> (<span class="fl">273.15</span> <span class="sc">/</span> (<span class="fl">273.15</span> <span class="sc">+</span> sub<span class="sc">$</span>Temp)))</span></code></pre></div>
+<p><em>The mean flux for Vaisala 4 and enclosure 8 is</em></p>
+<div class="sourceCode" id="cb131"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb131-1"><a href="#cb131-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(flux)</span></code></pre></div>
+<pre><code>## [1] 0.1005061</code></pre>
+<hr />
+</div>
 <div id="references" class="section level1">
 <h1>References</h1>
+<p>Hadley Wickham (2011). The Split-Apply-Combine Strategy for Data Analysis. Journal of Statistical Software, 40(1), 1-29. <a href="http://www.jstatsoft.org/v40/i01/" class="uri">http://www.jstatsoft.org/v40/i01/</a>.</p>
+<p>Timur V. Elzhov, Katharine M. Mullen, Andrej-Nikolai Spiess and Ben Bolker (2016). minpack.lm: R Interface to the Levenberg-Marquardt Nonlinear Least-Squares Algorithm Found in MINPACK, Plus Support for Bounds. R package version 1.2-1. <a href="https://CRAN.R-project.org/package=minpack.lm" class="uri">https://CRAN.R-project.org/package=minpack.lm</a></p>
 <p>Hadley Wickham, Romain Francois, Lionel Henry and Kirill Muller (2021). dplyr: A Grammar of Data Manipulation. R package version 1.0.7. <a href="https://CRAN.R-project.org/package=dplyr" class="uri">https://CRAN.R-project.org/package=dplyr</a></p>
+<p>Kieslich, P. J., &amp; Henninger, F. (2016). Readbulk: An R package for reading and combining multiple data files. <a href="https://doi.org/10.5281/zenodo.596649" class="uri">https://doi.org/10.5281/zenodo.596649</a></p>
 <p>Steve Su, with contributions from: Diethelm Wuertz, Martin Maechler, Rmetrics core team members for low discrepancy algorithm, Juha Karvanen for L moments codes, Robert King for gld C codes, starship codes, Benjamin Dean for corrections, input in ks.gof code and R core team for histsu function. (2020). GLDEX: Fitting Single and Mixture of Generalised Lambda Distributions (RS and FMKL) using Various Methods. R package version 2.0.0.7. <a href="https://CRAN.R-project.org/package=GLDEX" class="uri">https://CRAN.R-project.org/package=GLDEX</a></p>
 <hr />
 </div>

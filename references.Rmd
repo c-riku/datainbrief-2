@@ -1,7 +1,13 @@
 # References
+Hadley Wickham (2011). The Split-Apply-Combine Strategy for Data Analysis. Journal of Statistical Software, 40(1), 1-29. http://www.jstatsoft.org/v40/i01/.
+
+Timur V. Elzhov, Katharine M. Mullen, Andrej-Nikolai Spiess and Ben Bolker (2016). minpack.lm: R Interface to the Levenberg-Marquardt Nonlinear Least-Squares Algorithm Found in MINPACK, Plus Support for Bounds. R package version 1.2-1. https://CRAN.R-project.org/package=minpack.lm
+
 Hadley Wickham, Romain Francois, Lionel Henry and Kirill Muller
 (2021). dplyr: A Grammar of Data Manipulation. R package version
 1.0.7. https://CRAN.R-project.org/package=dplyr
+
+Kieslich, P. J., & Henninger, F. (2016). Readbulk: An R package for reading and combining multiple data files. https://doi.org/10.5281/zenodo.596649
 
 Steve Su, with contributions from: Diethelm Wuertz, Martin Maechler,
 Rmetrics core team members for low discrepancy algorithm, Juha
