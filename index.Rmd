@@ -2,8 +2,13 @@
 title: "Notebook"
 author: "Caius Ribeiro-Kumara"
 output:
-  rmarkdown::html_document:
-    theme: lumen
+  prettydoc::html_pretty:
+    theme: cayman
+    highlight: github
+    fig_caption: true
+    fig_width: 5
+    fig_height: 5
+    df_print: paged
 ---
 
 ***
