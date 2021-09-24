@@ -1,0 +1,13 @@
+# References
+Hadley Wickham, Romain FranÃ§ois, Lionel Henry and Kirill MÃ¼ller
+(2021). dplyr: A Grammar of Data Manipulation. R package version
+1.0.7. https://CRAN.R-project.org/package=dplyr
+
+Steve Su, with contributions from: Diethelm Wuertz, Martin Maechler,
+Rmetrics core team members for low discrepancy algorithm, Juha
+Karvanen for L moments codes, Robert King for gld C codes, starship
+codes, Benjamin Dean for corrections, input in ks.gof code and R
+core team for histsu function. (2020). GLDEX: Fitting Single and
+Mixture of Generalised Lambda Distributions (RS and FMKL) using
+Various Methods. R package version 2.0.0.7.
+https://CRAN.R-project.org/package=GLDEX

@@ -4,47 +4,47 @@ This script calculates gas (carbon dioxide, methane, nitrous oxide) flux
 in mg m<sup>-2</sup> s<sup>-1</sup> from gas chromatography data (concentration in ppm) using *dplyr* and *GLDEX* packages, see citation at the end of script.
 
 
-**1. Load libraries.**
+**2.1 Load libraries.**
 ```{r}
 library("dplyr")
 library("GLDEX")
 library("prettydoc")
 ```
 
-**2. Set directory and load data.**
+**2.2 Set directory and load data.**
 ```{r}
 Path <- setwd("D:/Git/project-3/raw-data/field/")
 data <- read.csv("gasvials.csv", header = TRUE)
 ```
 
 ```{r}
-head(data)
+knitr::kable(head(data))
 ```
 
 ```{r}
 str(data)
 ```
 
-**3. Check and remove missing data by row.**
+**2.3 Check and remove missing data by row.**
 ```{r}
 colSums(is.na(data))
 data <- na.exclude(data)
 ```
 
-**4. Pick specific bottles (closure time).**  
+**2.4 Pick specific bottles (closure time).**  
 *This code selects measurements from bottle 113 to bottle 118.*
 ```{r}
 sub <- data %>% filter(Bottle >= 113 & Bottle <= 118)
 ```
 
-**5. Model and calculate standard deviation.**
+**2.5 Model and calculate standard deviation.**
 ```{r}
 m1 <- lm(CH4 ~ dt, data = sub)
 coef(m1)
 sd2 <- sd(m1$fitted.values)
 ```
 
-**6. Plot regression line and observations.**
+**2.6 Plot regression line and observations.**
 ```{r}
 plot(CH4 ~ dt, data = sub)
 abline(m1, col = "blue", lwd = 2)
@@ -52,7 +52,7 @@ abline(m1$coefficients[1] + sd2, m1$coefficients[2])
 abline(m1$coefficients[1] - sd2, m1$coefficients[2])
 ```
 
-**7. Remove observations as necessary and refit model with sub1. If removal is not necessary, use the rest of script with sub instead of sub1.**  
+**2.7. Remove observations as necessary and refit model with sub1. If removal is not necessary, use the rest of script with sub instead of sub1.**  
 *This code removes rows 1 and 4 from the sub dataset.*
 ```{r}
 sub1 <- sub[-c(1,4),]
@@ -65,18 +65,18 @@ abline(m1$coefficients[1] + sd2, m1$coefficients[2])
 abline(m1$coefficients[1] - sd2, m1$coefficients[2])
 ```
 
-**8. Add fitted values to dataframe.**
+**2.8 Add fitted values to dataframe.**
 ```{r}
 sub1$CH4fitted <- fitted(m1)
 ```
 
-**9. Calculate and add fitted diff to dataframe.**
+**2.9 Calculate and add fitted diff to dataframe.**
 ```{r}
 sub1$CH4diff <- sub1$CH4fitted - 
   lag(sub1$CH4fitted, default = first(sub1$CH4fitted))
 ```
 
-**10. Flux calculation.**  
+**2.10 Flux calculation.**  
 *This code calculates CH<sub>4</sub> flux in mg CH<sub>4</sub> m<sup>-2</sup> s<sup>-1</sup>.*  
 *Remember to adjust the flux calculation according to the gas respective molar mass, CO<sub>2</sub> = 44.01, N<sub>2</sub>O = 44.013, CH<sub>4</sub> = 16.042.*
 ```{r}
@@ -85,29 +85,16 @@ flux <- sub1$CH4diff * 16.042 * sub1$Pressure *
   (sub1$ChamberV / sub1$CollarA) / sub1$dts
 ```
 
-**11. Remove NaN and false zeros.**
+**2.11 Remove NaN and false zeros.**
 ```{r}
 df <- as.data.frame(flux)
 df <- na.omit(df)
 df <- fun.zero.omit(df)
 ```
 
-**12. Write down average flux for chosen bottles.**  
+**2.12 Write down average flux for chosen bottles.**  
 *The mean flux for bottles 113-118 is*
 ```{r}
 mean(df$flux)
 ```
 
-### References
-Hadley Wickham, Romain François, Lionel Henry and Kirill Müller
-(2021). dplyr: A Grammar of Data Manipulation. R package version
-1.0.7. https://CRAN.R-project.org/package=dplyr
-
-Steve Su, with contributions from: Diethelm Wuertz, Martin Maechler,
-Rmetrics core team members for low discrepancy algorithm, Juha
-Karvanen for L moments codes, Robert King for gld C codes, starship
-codes, Benjamin Dean for corrections, input in ks.gof code and R
-core team for histsu function. (2020). GLDEX: Fitting Single and
-Mixture of Generalised Lambda Distributions (RS and FMKL) using
-Various Methods. R package version 2.0.0.7.
-https://CRAN.R-project.org/package=GLDEX

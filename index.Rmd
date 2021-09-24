@@ -9,6 +9,7 @@ output:
     fig_width: 5
     fig_height: 5
     df_print: paged
+    number_sections: false
 ---
 
 ***
@@ -22,4 +23,8 @@ output:
 ```
   
 ***
-
+  
+```{r child = "references.Rmd"}
+```
+  
+***

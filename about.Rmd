@@ -1,6 +1,9 @@
 
 # About this notebook
 
-This notebook includes 3 scrips. (will update more later)
+This notebook includes 3 scrips:  
+1. Grab file names  
+2. Process GHG flux data from gas chromatography  
+3. Process CO<sub>2</sub> flux data from gas Vaisala
 
 [My GitHub repository for these notebooks](https://github.com/c-riku/notebooks)
