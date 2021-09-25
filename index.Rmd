@@ -9,7 +9,7 @@ output:
     fig_width: 5
     fig_height: 5
     df_print: paged
-    number_sections: false
+    number_sections: true
     toc: true
 ---
 
@@ -27,10 +27,16 @@ output:
   
 ```{r child = "process-data-CO2.Rmd"}
 ```
-  
+
+***
+
+```{r child = "analyse-data-CO2.Rmd"}
+```
+
 ***
   
 ```{r child = "references.Rmd"}
 ```
   
 ***
+

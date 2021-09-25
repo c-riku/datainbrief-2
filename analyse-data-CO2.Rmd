@@ -1,0 +1,131 @@
+---
+title: "Notebook"
+author: "Caius Ribeiro-Kumara"
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+    highlight: github
+    fig_caption: true
+    fig_width: 8
+    fig_height: 5
+    df_print: paged
+    number_sections: true
+    toc: true
+---
+
+# Analyse soil CO<sub>2</sub> emissions
+
+**Load libraries**
+```{r}
+library("plyr")
+library("dplyr")
+library("ggplot2")
+library("lme4")
+library("extrafont")
+
+myFont <- "Segoe UI"
+windowsFonts(mono  = myFont)
+```
+
+**Will detail it later**
+```{r}
+setwd("D:/Git/project-1/processed-data/")
+data <- read.table(file = "Database_fluxes_v0.txt",
+                   header = TRUE,
+                   dec = ".")
+
+names(data)[names(data) == "fire"] <- "TAF"
+names(data)[names(data) == "tsoil"] <- "ST"
+names(data)[names(data) == "msoil"] <- "SM"
+str(data)
+
+data$plot<-factor(data$plot)
+data$collar<-factor(data$collar)
+data$month<-factor(data$month)
+data$site<-factor(data$site)
+
+colSums(is.na(data))
+data1 <- na.exclude(data)
+
+data1$co2 <- data1$co2 * 86.4
+
+full <- lmer(co2 ~ site * ST + site * SM + (1 + ST | month) +
+            (1 | plot/collar), REML = T, data = data1)
+fullML <- lmer(co2 ~ site * ST + site * SM + (1 + ST | month) +
+            (1 | plot/collar), REML = F, data = data1)
+
+drop1(fullML, test="Chi")
+
+summary(full)
+
+E1 <- resid(fullML)
+F1 <- fitted(fullML)
+par(mfrow = c(1, 1))
+plot(x = F1, 
+     y = E1,
+     xlab = "Fitted values",
+     ylab = "Residuals")
+abline(h = 0, lty = 2, col = 1)
+
+MyData <- ddply(data1, 
+                .(site), 
+                summarize,
+                ST = seq(min(ST), 
+                            max(ST),
+                            length = 30))
+MyData["SM"] <- mean(data1$SM)
+
+X <- model.matrix(~site*ST + site*SM,
+                  data = MyData)
+beta  <- fixef(full)
+MyData$mu<-X%*%beta
+
+MyData$SE <- sqrt( diag( X %*% vcov(full) %*% t(X)))
+MyData$seup <- MyData$mu + 1.96 * MyData$SE #Lower bound
+MyData$selow  <- MyData$mu - 1.96 * MyData$SE #Upper bound
+head(MyData)
+
+cols1 <- c("8years" = "#F7BA7A", "19years" = "#C7A66F",
+           "34years" = "#979364", "65years" = "#687F5A",
+           "76years" = "#386C4F", "179years" = "#085844")
+
+p1 <- ggplot()
+p1 <- p1 + geom_point(data = data1, 
+                      aes(y = co2,
+                          x = ST,
+                          col = site,
+                          shape = site), size = 1)
+p1 <- p1 + xlab(expression('Soil temperature ('*~degree*C*')')) +
+  ylab(bquote(''*g ~CO[2]~ m^-2~d^-1*''))
+p1 <- p1 + geom_line(data = MyData, 
+                     aes(x = ST, 
+                         y = mu))
+p1 <- p1 + geom_ribbon(data = MyData, 
+                       aes(x = ST, 
+                           ymax = seup, 
+                           ymin = selow),
+                       alpha = 0.1)
+p1 <- p1 + facet_grid(. ~ factor(site,
+                                 levels = c("8years", "19years", "34years",
+                                            "65years","76years", "179years"),
+                                 labels = c("8 years", "19 years", "34 years",
+                                            "65 years","76 years", "179 years")))
+p1 <- p1 + theme_bw() +
+  theme(text=element_text(size = 12, family="mono")) +
+  theme(legend.position = "none")
+p1 <- p1 + scale_colour_manual(
+  values = cols1,
+  aesthetics = "colour")
+p1 <- p1+  scale_shape_manual(name = "Time after fire",
+                     breaks = c("8years", "19years", "34years", "65years", "76years", "179years"),
+                     values = c(8, 17, 15, 4, 7, 16))
+p1
+```
+
+
+
+
+
+
+
+
