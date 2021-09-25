@@ -15,8 +15,10 @@ output:
 
 # Analyse soil CO<sub>2</sub> emissions
 
-**Load libraries**
+#Load libraries
 ```{r}
+#Load libraries
+
 library("plyr")
 library("dplyr")
 library("ggplot2")
@@ -27,37 +29,43 @@ myFont <- "Segoe UI"
 windowsFonts(mono  = myFont)
 ```
 
-**Will detail it later**
 ```{r}
 setwd("D:/Git/project-1/processed-data/")
 data <- read.table(file = "Database_fluxes_v0.txt",
                    header = TRUE,
                    dec = ".")
 
+#Renaming all variables
 names(data)[names(data) == "fire"] <- "TAF"
 names(data)[names(data) == "tsoil"] <- "ST"
 names(data)[names(data) == "msoil"] <- "SM"
 str(data)
 
+#Convert to factor
 data$plot<-factor(data$plot)
 data$collar<-factor(data$collar)
 data$month<-factor(data$month)
 data$site<-factor(data$site)
 
+#Remove missing data
 colSums(is.na(data))
 data1 <- na.exclude(data)
 
+#Change the unit to g m-2d-1
 data1$co2 <- data1$co2 * 86.4
 
+#Fit model with random structure based on model design using REML for model selection and model validation
 full <- lmer(co2 ~ site * ST + site * SM + (1 + ST | month) +
             (1 | plot/collar), REML = T, data = data1)
+
+#Fit model with random structure based on model design using ML for final results
 fullML <- lmer(co2 ~ site * ST + site * SM + (1 + ST | month) +
             (1 | plot/collar), REML = F, data = data1)
 
+#Model selection
 drop1(fullML, test="Chi")
 
-summary(full)
-
+#Model validation: residuals vs. fitted
 E1 <- resid(fullML)
 F1 <- fitted(fullML)
 par(mfrow = c(1, 1))
@@ -67,6 +75,10 @@ plot(x = F1,
      ylab = "Residuals")
 abline(h = 0, lty = 2, col = 1)
 
+#Model estimates
+summary(full)
+
+#Visualize what the model is doing
 MyData <- ddply(data1, 
                 .(site), 
                 summarize,
@@ -121,7 +133,7 @@ p1 <- p1+  scale_shape_manual(name = "Time after fire",
                      values = c(8, 17, 15, 4, 7, 16))
 ```
 
-```{r p1, fig.height = 5, fig.width = 9}
+```{r p1, fig.height = 5, fig.width = 9, fig.cap = "Linear mixed model predictions showing the relationships between soil CO<sub>2</sub> efflux and soil temperature (soil moisture was held constant)"}
 p1
 ```
 
