@@ -31,19 +31,16 @@ sub <- data %>% filter(Bottle >= 113 & Bottle <= 118)
 m1 <- lm(CH4 ~ dt, data = sub)
 coef(m1)
 sd2 <- sd(m1$fitted.values)
-```
 
-**Plot regression line and observations**
-```{r message = FALSE}
+#Plot regression line and observations
 plot(CH4 ~ dt, data = sub)
 abline(m1, col = "blue", lwd = 2)
 abline(m1$coefficients[1] + sd2, m1$coefficients[2])
 abline(m1$coefficients[1] - sd2, m1$coefficients[2])
-```
 
-**Remove observations as necessary and refit model with sub1. If removal is not necessary, use the rest of script with sub instead of sub1**  
-*This code removes rows 1 and 4 from the sub dataset*
-```{r message = FALSE}
+##Remove observations as necessary and refit model with sub1.
+#If removal is not necessary, use the rest of script with sub instead of sub1 
+#This code removes rows 1 and 4 from the sub dataset
 sub1 <- sub[-c(1,4),]
 m1 <- lm(CH4 ~ dt, data = sub1)
 coef(m1)
@@ -52,15 +49,11 @@ plot(CH4 ~ dt, data = sub1)
 abline(m1, col = "blue", lwd = 2)
 abline(m1$coefficients[1] + sd2, m1$coefficients[2])
 abline(m1$coefficients[1] - sd2, m1$coefficients[2])
-```
 
-**Add fitted values to dataframe**
-```{r message = FALSE}
+#Add fitted values to dataframe
 sub1$CH4fitted <- fitted(m1)
-```
 
-**Calculate and add fitted diff to dataframe**
-```{r message = FALSE}
+#Calculate and add fitted diff to dataframe
 sub1$CH4diff <- sub1$CH4fitted - 
   lag(sub1$CH4fitted, default = first(sub1$CH4fitted))
 ```
@@ -72,10 +65,8 @@ sub1$CH4diff <- sub1$CH4fitted -
 flux <- sub1$CH4diff * 16.042 * sub1$Pressure * 
   273.15 / (22.414 * 1013 *(sub1$ST + 273.15)) *
   (sub1$ChamberV / sub1$CollarA) / sub1$dts
-```
 
-**Remove NaN and false zeros**
-```{r message = FALSE}
+#Remove NaN and false zeros
 df <- as.data.frame(flux)
 df <- na.omit(df)
 df <- fun.zero.omit(df)
