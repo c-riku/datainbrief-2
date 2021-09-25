@@ -2,88 +2,68 @@
 
 This script calculates carbon dioxide flux in mg m<sup>-2</sup> s<sup>-1</sup> from the Vaisala instrument (concentration in ppm) using a linear regression fit.
 
-**Set directory and load data**
-```{r}
+
+```{r message = FALSE}
+#Set directory and load data
 raw_data <- read_bulk(directory = "D:/Git/project-3/raw-data/vaisala-raw/",
                       subdirectories = c("01", "02", "03", "04"),
                       extension = ".csv")
-```
 
-**Replace values in "column T.II....C" with the non-NA values from column "TGAS.I....C" creating new column "TempChamber"**
-```{r}
+#Replace values in "column T.II....C" with the non-NA values from column "TGAS.I....C" creating new column "TempChamber"
 raw_data$TempChamber <- ifelse(is.na(raw_data$T.II....C),
                                raw_data$TGAS.I....C, raw_data$T.II....C)
-```
 
-**Rename variables to nicer things**
-```{r}
+#Rename variables to nicer things
 names(raw_data)[names(raw_data) == "X"] <- "Time"
 names(raw_data)[names(raw_data) == "CO2.I...ppm"] <- "CO2"
 names(raw_data)[names(raw_data) == "RH.II...."] <- "RH"
 names(raw_data)[names(raw_data) == "Subdirectory"] <- "Vaisala"
-```
 
-**Removing unnecessary columns**  
-*This code removes 3rd and 7th columns.*
-```{r}
+#Remove unnecessary columns 
+#This code removes 3rd and 7th columns
 raw_data <- select(raw_data, -c(3, 7))
-```
 
-**Grab metadata (pick the correct path)**
-```{r}
+#Grab metadata (pick the correct path)
 fl <- dir("D:/Git/project-3/raw-data/vaisala-raw/")[grepl('\\.csv$', dir("D:/Git/project-3/raw-data/vaisala-raw/"))]
 fl <- paste("D:/Git/project-3/raw-data/vaisala-raw/", fl, sep = '')
 meta <- do.call(rbind,
                 lapply(fl, read.csv, as.is = TRUE))
-```
 
-**Merge datasets by file name keeping order**
-```{r}
+#Merge datasets by file name keeping order
 names(meta)[names(meta) == "ï..File"] <- "File"
 proc_data <- join(raw_data, meta,
                 type = "inner")
-```
 
-**Remove missing Vaisala data**
-```{r}
+#Remove missing Vaisala data
 colSums(is.na(proc_data))
 proc_data <- na.exclude(proc_data)
-```
 
-**Calibrate CO2 according to Vaisala**
-```{r}
+#Calibrate CO2 according to Vaisala
 proc_data$CO2calib <- with (proc_data, (CO2 - Calib1) / Calib2)
-```
 
-**To calculate dt we need to to convert Time from factor to POSIXct**
-```{r}
+#To calculate dt we need to to convert Time from factor to POSIXct
 proc_data$Datetime <- as.POSIXct(paste(proc_data$Time,tz = ""),
                                  format = "%d/%m/%Y %H:%M:%S")
-```
 
-**Pick specific Vaisala and closure (file)**  
-*This code picked Vaisala 4 and closure 8.*
-```{r}
+#Pick specific Vaisala and closure (file)  
+#This code picked Vaisala 4 and closure 8
 sub <- subset(proc_data, Vaisala == "04" & Closure == "8")
 sub$dt <- as.numeric(sub$Datetime - sub$Datetime[1])
 model1 <- lm(CO2calib ~ dt, data = sub)
 plot(CO2calib ~ dt, data = sub)
 abline(model1, col = "blue", lwd = 2)
-```
 
-**Add fitted values to dataframe**
-```{r}
+#Add fitted values to dataframe
 sub$CO2fitted <- fitted(model1)
-```
 
-**Calculate average CO<sub>2</sub>**
-```{r}
+#Calculate average CO<sub>2</sub>
 flux <- as.numeric(coef(model1)[2] *
                      (sub$ChamberV / sub$CollarA) *
                      (44.01 / 22.414) * (273.15 / (273.15 + sub$Temp)))
 ```
+
 *The mean flux for Vaisala 4 and enclosure 8 is*
-```{r}
+```{r message = FALSE}
 mean(flux)
 ```
 

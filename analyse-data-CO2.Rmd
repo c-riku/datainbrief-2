@@ -1,6 +1,6 @@
 # Analyse soil CO<sub>2</sub> emissions
 
-```{r message = FALSE, tidy = TRUE}
+```{r message = FALSE}
 #Load libraries
 
 library("plyr")
@@ -47,7 +47,7 @@ fullML <- lmer(co2 ~ site * ST + site * SM + (1 + ST | month) +
             (1 | plot/collar), REML = F, data = data1)
 
 #Model selection
-drop1(fullML, test="Chi")
+knitr::kable(drop1(fullML, test="Chi"))
 
 #Model validation: residuals vs. fitted
 E1 <- resid(fullML)
@@ -79,7 +79,7 @@ MyData$mu<-X%*%beta
 MyData$SE <- sqrt( diag( X %*% vcov(full) %*% t(X)))
 MyData$seup <- MyData$mu + 1.96 * MyData$SE #Lower bound
 MyData$selow  <- MyData$mu - 1.96 * MyData$SE #Upper bound
-head(MyData)
+knitr::kable(head(MyData))
 
 cols1 <- c("8years" = "#F7BA7A", "19years" = "#C7A66F",
            "34years" = "#979364", "65years" = "#687F5A",
@@ -134,7 +134,7 @@ MyData$mu<-X%*%beta
 MyData$SE <- sqrt( diag( X %*% vcov(full) %*% t(X)))
 MyData$seup <- MyData$mu + 1.96 * MyData$SE #Lower bound
 MyData$selow  <- MyData$mu - 1.96 * MyData$SE #Upper bound
-head(MyData)
+knitr::kable(head(MyData))
 
 p11 <- ggplot()
 p11 <- p11 + geom_point(data = data1, 
