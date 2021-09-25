@@ -1,18 +1,3 @@
----
-title: "Notebook"
-author: "Caius Ribeiro-Kumara"
-output:
-  prettydoc::html_pretty:
-    theme: cayman
-    highlight: github
-    fig_caption: true
-    fig_width: 8
-    fig_height: 5
-    df_print: paged
-    number_sections: true
-    toc: true
----
-
 # Analyse soil CO<sub>2</sub> emissions
 
 ```{r}
@@ -77,7 +62,7 @@ abline(h = 0, lty = 2, col = 1)
 #Model estimates
 summary(full)
 
-#Visualize what the model is doing
+#Visualize what the model is doing for soil temperature
 MyData <- ddply(data1, 
                 .(site), 
                 summarize,
@@ -100,6 +85,7 @@ cols1 <- c("8years" = "#F7BA7A", "19years" = "#C7A66F",
            "34years" = "#979364", "65years" = "#687F5A",
            "76years" = "#386C4F", "179years" = "#085844")
 
+#CO2 vs. Soil temperature
 p1 <- ggplot()
 p1 <- p1 + geom_point(data = data1, 
                       aes(y = co2,
@@ -130,10 +116,64 @@ p1 <- p1 + scale_colour_manual(
 p1 <- p1+  scale_shape_manual(name = "Time after fire",
                      breaks = c("8years", "19years", "34years", "65years", "76years", "179years"),
                      values = c(8, 17, 15, 4, 7, 16))
+
+#CO2 vs. Soil moisture
+MyData <- ddply(data1, 
+                .(site), 
+                summarize,
+                SM = seq(min(SM), 
+                            max(SM),
+                            length = 30))
+MyData["ST"] <- mean(data1$SM)
+
+X <- model.matrix(~site*ST + site*SM,
+                  data = MyData)
+beta  <- fixef(full)
+MyData$mu<-X%*%beta
+
+MyData$SE <- sqrt( diag( X %*% vcov(full) %*% t(X)))
+MyData$seup <- MyData$mu + 1.96 * MyData$SE #Lower bound
+MyData$selow  <- MyData$mu - 1.96 * MyData$SE #Upper bound
+head(MyData)
+
+p11 <- ggplot()
+p11 <- p11 + geom_point(data = data1, 
+                      aes(y = co2,
+                          x = SM,
+                          col = site,
+                          shape = site), size = 1)
+p11 <- p11 + xlab("Soil moisture (%)") +
+  ylab(bquote(''*g ~CO[2]~ m^-2~d^-1*''))
+p11 <- p11 + geom_line(data = MyData, 
+                     aes(x = SM, 
+                         y = mu))
+p11 <- p11 + geom_ribbon(data = MyData, 
+                       aes(x = SM, 
+                           ymax = seup, 
+                           ymin = selow),
+                       alpha = 0.1)
+p11 <- p11 + facet_grid(. ~ factor(site,
+                                 levels = c("8years", "19years", "34years",
+                                            "65years","76years", "179years"),
+                                 labels = c("8 years", "19 years", "34 years",
+                                            "65 years","76 years", "179 years")))
+p11 <- p11 + theme_bw() +
+  theme(text=element_text(size = 12, family="mono")) +
+  theme(legend.position= "none")
+p11 <- p11 + scale_colour_manual(
+  values = cols1,
+  aesthetics = "colour")
+p11 <- p11 +  scale_shape_manual(name = "Time after fire",
+                              breaks = c("8years", "19years", "34years", "65years", "76years", "179years"),
+                              values = c(8, 17, 15, 4, 7, 16))
 ```
 
 ```{r p1, fig.height = 5, fig.width = 9, fig.cap = "Linear mixed model predictions showing the relationships between soil CO<sub>2</sub> efflux and soil temperature (soil moisture was held constant)."}
 p1
+```
+
+```{r p11, fig.height = 5, fig.width = 9, fig.cap = "Linear mixed model predictions showing the relationships between soil CO<sub>2</sub> efflux and soil moisture (soil temperature was held constant)."}
+p11
 ```
 
 
