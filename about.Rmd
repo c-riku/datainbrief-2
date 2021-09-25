@@ -1,8 +1,6 @@
 # About this notebook
 
-This notebook includes 2 scripts:  
-1. Process GHG flux data from gas chromatography  
-2. Process CO<sub>2</sub> flux data from the Vaisala instrument
+This notebook includes code that I have used in the past and aim to improve.
 
 Packages used *plyr*, *dplyr*, *minpack.lm*, *readbulk*, and *GLDEX*. See citation at the end of script.
 
