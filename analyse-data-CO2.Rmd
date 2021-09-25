@@ -15,7 +15,6 @@ output:
 
 # Analyse soil CO<sub>2</sub> emissions
 
-#Load libraries
 ```{r}
 #Load libraries
 
@@ -133,7 +132,7 @@ p1 <- p1+  scale_shape_manual(name = "Time after fire",
                      values = c(8, 17, 15, 4, 7, 16))
 ```
 
-```{r p1, fig.height = 5, fig.width = 9, fig.cap = "Linear mixed model predictions showing the relationships between soil CO<sub>2</sub> efflux and soil temperature (soil moisture was held constant)"}
+```{r p1, fig.height = 5, fig.width = 9, fig.cap = "Linear mixed model predictions showing the relationships between soil CO<sub>2</sub> efflux and soil temperature (soil moisture was held constant)."}
 p1
 ```
 
