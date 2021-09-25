@@ -1,6 +1,6 @@
 # Analyse soil CO<sub>2</sub> emissions
 
-```{r}
+```{r message = FALSE, tidy = TRUE}
 #Load libraries
 
 library("plyr")
@@ -13,7 +13,7 @@ myFont <- "Segoe UI"
 windowsFonts(mono  = myFont)
 ```
 
-```{r}
+```{r message = FALSE}
 setwd("D:/Git/project-1/processed-data/")
 data <- read.table(file = "Database_fluxes_v0.txt",
                    header = TRUE,
