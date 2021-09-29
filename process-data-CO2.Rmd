@@ -3,7 +3,7 @@
 This script calculates carbon dioxide flux in mg m<sup>-2</sup> s<sup>-1</sup> from the Vaisala instrument (concentration in ppm) using a linear regression fit.
 
 
-```{r message = FALSE}
+```{r message=FALSE}
 #Set directory and load data
 raw_data <- read_bulk(directory = "D:/Git/project-3/raw-data/vaisala-raw/",
                       subdirectories = c("01", "02", "03", "04"),
@@ -63,7 +63,7 @@ flux <- as.numeric(coef(model1)[2] *
 ```
 
 *The mean flux for Vaisala 4 and enclosure 8 is*
-```{r message = FALSE}
+```{r message=FALSE}
 mean(flux)
 ```
 

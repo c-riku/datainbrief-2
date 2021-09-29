@@ -153,16 +153,16 @@ a.sourceLine {
 <section class="main-content">
 <hr />
 <div id="about-this-notebook" class="section level1" number="1">
-<h1 number="1"><span class="header-section-number">1</span> About this notebook</h1>
+<h1><span class="header-section-number">1</span> About this notebook</h1>
 <p>This notebook includes code that I have used in the past and aim to improve.</p>
 <p>Packages used <em>plyr</em>, <em>dplyr</em>, <em>minpack.lm</em>, <em>readbulk</em>, and <em>GLDEX</em>. See citation at the end of script.</p>
 <p><a href="https://github.com/c-riku/notebooks">My GitHub repository for these notebooks</a></p>
 <hr />
 </div>
 <div id="process-chamber-based-soil-ghg-flux-data-from-gas-chromatography-and-from-vaisala" class="section level1" number="2">
-<h1 number="2"><span class="header-section-number">2</span> Process chamber-based soil GHG flux data from gas chromatography and from Vaisala</h1>
+<h1><span class="header-section-number">2</span> Process chamber-based soil GHG flux data from gas chromatography and from Vaisala</h1>
 <div id="ghg-data-from-gas-chromatography" class="section level2" number="2.1">
-<h2 number="2.1"><span class="header-section-number">2.1</span> GHG data from gas chromatography</h2>
+<h2><span class="header-section-number">2.1</span> GHG data from gas chromatography</h2>
 <p>This script calculates gas (carbon dioxide, methane, nitrous oxide) flux in mg m<sup>-2</sup> s<sup>-1</sup> from gas chromatography data (concentration in ppm) using a linear regression fit.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Load libraries</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">&quot;readbulk&quot;</span>)</span>
@@ -417,7 +417,7 @@ a.sourceLine {
 <hr />
 </div>
 <div id="co2-data-from-the-vaisala-instrument" class="section level2" number="2.2">
-<h2 number="2.2"><span class="header-section-number">2.2</span> CO<sub>2</sub> data from the Vaisala instrument</h2>
+<h2><span class="header-section-number">2.2</span> CO<sub>2</sub> data from the Vaisala instrument</h2>
 <p>This script calculates carbon dioxide flux in mg m<sup>-2</sup> s<sup>-1</sup> from the Vaisala instrument (concentration in ppm) using a linear regression fit.</p>
 <div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Set directory and load data</span></span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>raw_data <span class="ot">&lt;-</span> <span class="fu">read_bulk</span>(<span class="at">directory =</span> <span class="st">&quot;D:/Git/project-3/raw-data/vaisala-raw/&quot;</span>,</span>
@@ -488,7 +488,7 @@ a.sourceLine {
 </div>
 </div>
 <div id="analyse-soil-co2-emissions" class="section level1" number="3">
-<h1 number="3"><span class="header-section-number">3</span> Analyse soil CO<sub>2</sub> emissions</h1>
+<h1><span class="header-section-number">3</span> Analyse soil CO<sub>2</sub> emissions</h1>
 <div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Load libraries</span></span>
 <span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">&quot;plyr&quot;</span>)</span>
@@ -883,7 +883,7 @@ a.sourceLine {
 <hr />
 </div>
 <div id="references" class="section level1" number="4">
-<h1 number="4"><span class="header-section-number">4</span> References</h1>
+<h1><span class="header-section-number">4</span> References</h1>
 <p>Hadley Wickham (2011). The Split-Apply-Combine Strategy for Data Analysis. Journal of Statistical Software, 40(1), 1-29. <a href="http://www.jstatsoft.org/v40/i01/" class="uri">http://www.jstatsoft.org/v40/i01/</a>.</p>
 <p>Timur V. Elzhov, Katharine M. Mullen, Andrej-Nikolai Spiess and Ben Bolker (2016). minpack.lm: R Interface to the Levenberg-Marquardt Nonlinear Least-Squares Algorithm Found in MINPACK, Plus Support for Bounds. R package version 1.2-1. <a href="https://CRAN.R-project.org/package=minpack.lm" class="uri">https://CRAN.R-project.org/package=minpack.lm</a></p>
 <p>Hadley Wickham, Romain Francois, Lionel Henry and Kirill Muller (2021). dplyr: A Grammar of Data Manipulation. R package version 1.0.7. <a href="https://CRAN.R-project.org/package=dplyr" class="uri">https://CRAN.R-project.org/package=dplyr</a></p>
