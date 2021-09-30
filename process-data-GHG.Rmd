@@ -16,7 +16,7 @@ library("GLDEX")
 #Set directory and load data
 Path <- setwd("D:/Git/project-3/raw-data/field/")
 data <- read.csv("gasvials.csv", header = TRUE)
-knitr::kable(head(data))
+head(data)
 str(data)
 
 #Check and remove missing data by row
