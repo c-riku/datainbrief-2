@@ -167,166 +167,74 @@ pre code {
 </div>
 
 
-<div id="process-co2-data-from-the-vaisala-instrument" class="section level1">
-<h1>Process CO<sub>2</sub> data from the Vaisala instrument</h1>
-<p>This script calculates carbon dioxide flux in mg m<sup>-2</sup> s<sup>-1</sup> from the Vaisala instrument (concentration in ppm) using <em>dplyr</em>, <em>plyr</em>, <em>minpack.lm</em>, <em>readbulk</em>, and <em>ggplot2</em> packages, see citation at the end of script.</p>
-<p><strong>2.1 Load libraries.</strong></p>
-<pre class="r"><code>library(&quot;readbulk&quot;)
+<div id="co2-data-from-the-vaisala-instrument" class="section level2">
+<h2>CO<sub>2</sub> data from the Vaisala instrument</h2>
+<p>This script calculates carbon dioxide flux in mg m<sup>-2</sup> s<sup>-1</sup> from the Vaisala instrument (concentration in ppm) using a linear regression fit.</p>
+<pre class="r"><code>#Load libraries
+library(&quot;readbulk&quot;)
 library(&quot;plyr&quot;)
-library(&quot;dplyr&quot;)</code></pre>
-<pre><code>## 
-## Attaching package: &#39;dplyr&#39;</code></pre>
-<pre><code>## The following objects are masked from &#39;package:plyr&#39;:
-## 
-##     arrange, count, desc, failwith, id, mutate, rename, summarise,
-##     summarize</code></pre>
-<pre><code>## The following objects are masked from &#39;package:stats&#39;:
-## 
-##     filter, lag</code></pre>
-<pre><code>## The following objects are masked from &#39;package:base&#39;:
-## 
-##     intersect, setdiff, setequal, union</code></pre>
-<pre class="r"><code>library(&quot;minpack.lm&quot;)
-library(&quot;ggplot2&quot;)</code></pre>
-<p><strong>2.2 Set directory and load data.</strong></p>
-<pre class="r"><code>Path &lt;- setwd(&quot;D:/Git/project-3/raw-data/vaisala-raw/&quot;)
+library(&quot;dplyr&quot;)
+
+#Set directory and load data
 raw_data &lt;- read_bulk(directory = &quot;D:/Git/project-3/raw-data/vaisala-raw/&quot;,
                       subdirectories = c(&quot;01&quot;, &quot;02&quot;, &quot;03&quot;, &quot;04&quot;),
-                      extension = &quot;.csv&quot;)</code></pre>
-<pre><code>## Start merging subdirectory: 01</code></pre>
-<pre><code>## Reading 2018-08-01 0_49.csv</code></pre>
-<pre><code>## Reading 2018-08-01 1_38.csv</code></pre>
-<pre><code>## Reading 2018-08-01 2_30.csv</code></pre>
-<pre><code>## Reading 2018-08-01 20_21.csv</code></pre>
-<pre><code>## Reading 2018-08-01 21_11.csv</code></pre>
-<pre><code>## Reading 2018-08-01 21_56.csv</code></pre>
-<pre><code>## Reading 2018-08-02 0_22.csv</code></pre>
-<pre><code>## Reading 2018-08-02 1_47.csv</code></pre>
-<pre><code>## Reading 2018-08-02 10_04.csv</code></pre>
-<pre><code>## Reading 2018-08-02 10_44.csv</code></pre>
-<pre><code>## Reading 2018-08-02 11_46.csv</code></pre>
-<pre><code>## Reading 2018-08-02 2_30.csv</code></pre>
-<pre><code>## Reading 2018-08-02 9_30.csv</code></pre>
-<pre><code>## Reading 2018-08-03 11_18.csv</code></pre>
-<pre><code>## Reading 2018-08-03 12_01.csv</code></pre>
-<pre><code>## Reading 2018-08-03 13_54.csv</code></pre>
-<pre><code>## Reading 2018-08-03 14_55.csv</code></pre>
-<pre><code>## Reading 2018-08-03 15_36.csv</code></pre>
-<pre><code>## Reading 2018-08-04 11_12.csv</code></pre>
-<pre><code>## Reading 2018-08-04 12_05.csv</code></pre>
-<pre><code>## Reading 2018-08-04 12_38.csv</code></pre>
-<pre><code>## Reading 2018-08-04 13_55.csv</code></pre>
-<pre><code>## Reading 2018-08-04 15_04.csv</code></pre>
-<pre><code>## Reading 2018-08-04 15_42.csv</code></pre>
-<pre><code>## Reading 2018-08-05 10_55.csv</code></pre>
-<pre><code>## Reading 2018-08-05 11_32.csv</code></pre>
-<pre><code>## Reading 2018-08-05 12_23.csv</code></pre>
-<pre><code>## Reading 2018-08-05 13_49.csv</code></pre>
-<pre><code>## Reading 2018-08-05 14_22.csv</code></pre>
-<pre><code>## Reading 2018-08-05 15_04.csv</code></pre>
-<pre><code>## Reading 2018-08-06 10_33.csv</code></pre>
-<pre><code>## Reading 2018-08-06 11_39.csv</code></pre>
-<pre><code>## Reading 2018-08-06 12_57.csv</code></pre>
-<pre><code>## Reading 2018-08-06 9_41.csv</code></pre>
-<pre><code>## Start merging subdirectory: 02</code></pre>
-<pre><code>## Reading 2018-08-01 0_31.csv</code></pre>
-<pre><code>## Reading 2018-08-01 1_41.csv</code></pre>
-<pre><code>## Reading 2018-08-01 2_34.csv</code></pre>
-<pre><code>## Reading 2018-08-01 20_25.csv</code></pre>
-<pre><code>## Reading 2018-08-01 20_56.csv</code></pre>
-<pre><code>## Reading 2018-08-01 22_00.csv</code></pre>
-<pre><code>## Reading 2018-08-02 0_31.csv</code></pre>
-<pre><code>## Reading 2018-08-02 1_31.csv</code></pre>
-<pre><code>## Reading 2018-08-02 10_16.csv</code></pre>
-<pre><code>## Reading 2018-08-02 10_57.csv</code></pre>
-<pre><code>## Reading 2018-08-02 11_59.csv</code></pre>
-<pre><code>## Reading 2018-08-02 2_15.csv</code></pre>
-<pre><code>## Reading 2018-08-02 9_18.csv</code></pre>
-<pre><code>## Reading 2018-08-03 11_31.csv</code></pre>
-<pre><code>## Reading 2018-08-03 12_14.csv</code></pre>
-<pre><code>## Reading 2018-08-03 13_41.csv</code></pre>
-<pre><code>## Reading 2018-08-03 15_11.csv</code></pre>
-<pre><code>## Reading 2018-08-03 15_47.csv</code></pre>
-<pre><code>## Reading 2018-08-04 11_25.csv</code></pre>
-<pre><code>## Reading 2018-08-04 11_52.csv</code></pre>
-<pre><code>## Reading 2018-08-04 12_50.csv</code></pre>
-<pre><code>## Reading 2018-08-04 14_07.csv</code></pre>
-<pre><code>## Reading 2018-08-04 14_53.csv</code></pre>
-<pre><code>## Reading 2018-08-04 15_30.csv</code></pre>
-<pre><code>## Reading 2018-08-05 10_43.csv</code></pre>
-<pre><code>## Reading 2018-08-05 11_22.csv</code></pre>
-<pre><code>## Reading 2018-08-05 12_19.csv</code></pre>
-<pre><code>## Reading 2018-08-05 13_38.csv</code></pre>
-<pre><code>## Reading 2018-08-05 14_16.csv</code></pre>
-<pre><code>## Reading 2018-08-05 14_58.csv</code></pre>
-<pre><code>## Reading 2018-08-06 10_27.csv</code></pre>
-<pre><code>## Reading 2018-08-06 10_52.csv</code></pre>
-<pre><code>## Reading 2018-08-06 12_45.csv</code></pre>
-<pre><code>## Reading 2018-08-06 9_28.csv</code></pre>
-<pre><code>## Start merging subdirectory: 03</code></pre>
-<pre><code>## Reading 2018-08-05 10_56.csv</code></pre>
-<pre><code>## Reading 2018-08-05 12_07.csv</code></pre>
-<pre><code>## Reading 2018-08-05 14_29.csv</code></pre>
-<pre><code>## Reading 2018-08-06 10_31.csv</code></pre>
-<pre><code>## Reading 2018-08-06 11_40.csv</code></pre>
-<pre><code>## Reading 2018-08-06 13_07.csv</code></pre>
-<pre><code>## Reading 2018-08-06 9_32.csv</code></pre>
-<pre><code>## Start merging subdirectory: 04</code></pre>
-<pre><code>## Reading 2018-08-05 10_50.csv</code></pre>
-<pre><code>## Reading 2018-08-05 12_12.csv</code></pre>
-<pre><code>## Reading 2018-08-05 14_23.csv</code></pre>
-<pre><code>## Reading 2018-08-06 10_25.csv</code></pre>
-<pre><code>## Reading 2018-08-06 10_57.csv</code></pre>
-<pre><code>## Reading 2018-08-06 11_34.csv</code></pre>
-<pre><code>## Reading 2018-08-06 13_00.csv</code></pre>
-<pre><code>## Reading 2018-08-06 9_26.csv</code></pre>
-<p><strong>Replace values in “column T.II….C” with the non-NA values from column “TGAS.I….C” creating new column “TempChamber”.</strong></p>
-<pre class="r"><code>raw_data$TempChamber &lt;- ifelse(is.na(raw_data$T.II....C),
-                               raw_data$TGAS.I....C, raw_data$T.II....C)</code></pre>
-<p><strong>Rename variables to nicer things.</strong></p>
-<pre class="r"><code>names(raw_data)[names(raw_data) == &quot;X&quot;] &lt;- &quot;Time&quot;
+                      extension = &quot;.csv&quot;)
+
+#Replace values in &quot;column T.II....C&quot; with the non-NA values from column &quot;TGAS.I....C&quot; creating new column &quot;TempChamber&quot;
+raw_data$TempChamber &lt;- ifelse(is.na(raw_data$T.II....C),
+                               raw_data$TGAS.I....C, raw_data$T.II....C)
+
+#Rename variables to nicer things
+names(raw_data)[names(raw_data) == &quot;X&quot;] &lt;- &quot;Time&quot;
 names(raw_data)[names(raw_data) == &quot;CO2.I...ppm&quot;] &lt;- &quot;CO2&quot;
 names(raw_data)[names(raw_data) == &quot;RH.II....&quot;] &lt;- &quot;RH&quot;
-names(raw_data)[names(raw_data) == &quot;Subdirectory&quot;] &lt;- &quot;Vaisala&quot;</code></pre>
-<p><strong>Removing unnecessary columns.</strong><br />
-<em>This code removes 3rd and 7th columns.</em></p>
-<pre class="r"><code>raw_data &lt;- select(raw_data, -c(3, 7))</code></pre>
-<p><strong>Grab metadata (same path as Path above).</strong></p>
-<pre class="r"><code>fl &lt;- dir(&quot;D:/Git/project-3/raw-data/vaisala-raw/&quot;)[grepl(&#39;\\.csv$&#39;, dir(&quot;D:/Git/project-3/raw-data/vaisala-raw/&quot;))]
+names(raw_data)[names(raw_data) == &quot;Subdirectory&quot;] &lt;- &quot;Vaisala&quot;
+
+#Remove unnecessary columns 
+#This code removes 3rd and 7th columns
+raw_data &lt;- select(raw_data, -c(3, 7))
+
+#Grab metadata (pick the correct path)
+fl &lt;- dir(&quot;D:/Git/project-3/raw-data/vaisala-raw/&quot;)[grepl(&#39;\\.csv$&#39;, dir(&quot;D:/Git/project-3/raw-data/vaisala-raw/&quot;))]
 fl &lt;- paste(&quot;D:/Git/project-3/raw-data/vaisala-raw/&quot;, fl, sep = &#39;&#39;)
 meta &lt;- do.call(rbind,
-                lapply(fl, read.csv, as.is = TRUE))</code></pre>
-<p><strong>Merge datasets by file name keeping order.</strong></p>
-<pre class="r"><code>names(meta)[names(meta) == &quot;ï..File&quot;] &lt;- &quot;File&quot;
+                lapply(fl, read.csv, as.is = TRUE))
+
+#Merge datasets by file name keeping order
+names(meta)[names(meta) == &quot;File&quot;] &lt;- &quot;File&quot;
 proc_data &lt;- join(raw_data, meta,
-                type = &quot;inner&quot;)</code></pre>
-<pre><code>## Joining by: File</code></pre>
-<p><strong>Remove missing Vaisala data.</strong></p>
-<pre class="r"><code>colSums(is.na(proc_data))</code></pre>
+                  type = &quot;inner&quot;)
+
+#Remove missing Vaisala data
+colSums(is.na(proc_data))</code></pre>
 <pre><code>##        Time         CO2          RH     Vaisala        File TempChamber 
 ##           0           4           0           0           0           3 
 ##     Closure      Calib1      Calib2        Year   Intensity        Plot 
 ##           0           0           0           0           0           0 
 ##      Collar     CollarA    ChamberV    Pressure          ST          SM 
 ##           0           0           0           0           0           0</code></pre>
-<pre class="r"><code>proc_data &lt;- na.exclude(proc_data)</code></pre>
-<p><strong>Calibrate CO2 according to Vaisala</strong></p>
-<pre class="r"><code>proc_data$CO2calib &lt;- with (proc_data, (CO2 - Calib1) / Calib2)</code></pre>
-<p><strong>To calculate dt we need to to convert Time from factor to POSIXct.</strong></p>
-<pre class="r"><code>proc_data$Datetime &lt;- as.POSIXct(paste(proc_data$Time,tz = &quot;&quot;),
-                                 format = &quot;%d/%m/%Y %H:%M:%S&quot;)</code></pre>
-<p><strong>Pick specific Vaisala and closure (file).</strong><br />
-<em>This code picked Vaisala 4 and closure 8.</em></p>
-<pre class="r"><code>sub &lt;- subset(proc_data, Vaisala == &quot;04&quot; &amp; Closure == &quot;8&quot;)
+<pre class="r"><code>proc_data &lt;- na.exclude(proc_data)
+
+#Calibrate CO2 according to Vaisala
+proc_data$CO2calib &lt;- with (proc_data, (CO2 - Calib1) / Calib2)
+
+#To calculate dt we need to to convert Time from factor to POSIXct
+proc_data$Datetime &lt;- as.POSIXct(paste(proc_data$Time,tz = &quot;&quot;),
+                                 format = &quot;%d/%m/%Y %H:%M:%S&quot;)
+
+#Pick specific Vaisala and closure (file)  
+#This code picked Vaisala 4 and closure 8
+sub &lt;- subset(proc_data, Vaisala == &quot;04&quot; &amp; Closure == &quot;8&quot;)
 sub$dt &lt;- as.numeric(sub$Datetime - sub$Datetime[1])
 model1 &lt;- lm(CO2calib ~ dt, data = sub)
 plot(CO2calib ~ dt, data = sub)
 abline(model1, col = &quot;blue&quot;, lwd = 2)</code></pre>
 <p><img src="data:image/png;base64,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" width="672" /></p>
-<p><strong>Add fitted values to dataframe.</strong></p>
-<pre class="r"><code>sub$CO2fitted &lt;- fitted(model1)</code></pre>
-<p><strong>Calculate average CO2.</strong></p>
-<pre class="r"><code>flux &lt;- as.numeric(coef(model1)[2] *
+<pre class="r"><code>#Add fitted values to dataframe
+sub$CO2fitted &lt;- fitted(model1)
+
+#Calculate average CO&lt;sub&gt;2&lt;/sub&gt;
+flux &lt;- as.numeric(coef(model1)[2] *
                      (sub$ChamberV / sub$CollarA) *
                      (44.01 / 22.414) * (273.15 / (273.15 + sub$Temp)))</code></pre>
 <p><em>The mean flux for Vaisala 4 and enclosure 8 is</em></p>

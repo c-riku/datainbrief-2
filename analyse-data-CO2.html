@@ -213,11 +213,11 @@ colSums(is.na(data))</code></pre>
 #Change the unit to g m-2d-1
 data1$co2 &lt;- data1$co2 * 86.4
 
-#Fit model with random structure based on model design using REML for model selection and model validation
+#Fit model with random structure based on model design using REML for final results
 full &lt;- lmer(co2 ~ site * ST + site * SM + (1 + ST | month) +
             (1 | plot/collar), REML = T, data = data1)
 
-#Fit model with random structure based on model design using ML for final results
+#Fit model with random structure based on model design using using ML for model selection and model validation 
 fullML &lt;- lmer(co2 ~ site * ST + site * SM + (1 + ST | month) +
             (1 | plot/collar), REML = F, data = data1)
 
@@ -430,7 +430,8 @@ p1 &lt;- p1 + scale_colour_manual(
   values = cols1,
   aesthetics = &quot;colour&quot;)
 p1 &lt;- p1+  scale_shape_manual(name = &quot;Time after fire&quot;,
-                     breaks = c(&quot;8years&quot;, &quot;19years&quot;, &quot;34years&quot;, &quot;65years&quot;, &quot;76years&quot;, &quot;179years&quot;),
+                     breaks = c(&quot;8years&quot;, &quot;19years&quot;, &quot;34years&quot;,
+                                &quot;65years&quot;, &quot;76years&quot;, &quot;179years&quot;),
                      values = c(8, 17, 15, 4, 7, 16))
 
 #CO2 vs. Soil moisture
@@ -448,8 +449,8 @@ beta  &lt;- fixef(full)
 MyData$mu&lt;-X%*%beta
 
 MyData$SE &lt;- sqrt( diag( X %*% vcov(full) %*% t(X)))
-MyData$seup &lt;- MyData$mu + 1.96 * MyData$SE #Lower bound
-MyData$selow  &lt;- MyData$mu - 1.96 * MyData$SE #Upper bound
+MyData$seup &lt;- MyData$mu + 1.96 * MyData$SE
+MyData$selow  &lt;- MyData$mu - 1.96 * MyData$SE
 knitr::kable(head(MyData))</code></pre>
 <table>
 <thead>
@@ -548,7 +549,8 @@ p11 &lt;- p11 + scale_colour_manual(
   values = cols1,
   aesthetics = &quot;colour&quot;)
 p11 &lt;- p11 +  scale_shape_manual(name = &quot;Time after fire&quot;,
-                              breaks = c(&quot;8years&quot;, &quot;19years&quot;, &quot;34years&quot;, &quot;65years&quot;, &quot;76years&quot;, &quot;179years&quot;),
+                              breaks = c(&quot;8years&quot;, &quot;19years&quot;, &quot;34years&quot;,
+                                         &quot;65years&quot;, &quot;76years&quot;, &quot;179years&quot;),
                               values = c(8, 17, 15, 4, 7, 16))</code></pre>
 <pre class="r"><code>p1</code></pre>
 <div class="figure">

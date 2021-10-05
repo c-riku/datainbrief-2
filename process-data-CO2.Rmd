@@ -4,6 +4,11 @@ This script calculates carbon dioxide flux in mg m<sup>-2</sup> s<sup>-1</sup> f
 
 
 ```{r message=FALSE}
+#Load libraries
+library("readbulk")
+library("plyr")
+library("dplyr")
+
 #Set directory and load data
 raw_data <- read_bulk(directory = "D:/Git/project-3/raw-data/vaisala-raw/",
                       subdirectories = c("01", "02", "03", "04"),
@@ -30,9 +35,9 @@ meta <- do.call(rbind,
                 lapply(fl, read.csv, as.is = TRUE))
 
 #Merge datasets by file name keeping order
-names(meta)[names(meta) == "ï..File"] <- "File"
+names(meta)[names(meta) == "File"] <- "File"
 proc_data <- join(raw_data, meta,
-                type = "inner")
+                  type = "inner")
 
 #Remove missing Vaisala data
 colSums(is.na(proc_data))

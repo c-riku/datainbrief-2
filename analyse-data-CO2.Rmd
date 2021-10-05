@@ -38,11 +38,11 @@ data1 <- na.exclude(data)
 #Change the unit to g m-2d-1
 data1$co2 <- data1$co2 * 86.4
 
-#Fit model with random structure based on model design using REML for model selection and model validation
+#Fit model with random structure based on model design using REML for final results
 full <- lmer(co2 ~ site * ST + site * SM + (1 + ST | month) +
             (1 | plot/collar), REML = T, data = data1)
 
-#Fit model with random structure based on model design using ML for final results
+#Fit model with random structure based on model design using using ML for model selection and model validation 
 fullML <- lmer(co2 ~ site * ST + site * SM + (1 + ST | month) +
             (1 | plot/collar), REML = F, data = data1)
 
@@ -114,7 +114,8 @@ p1 <- p1 + scale_colour_manual(
   values = cols1,
   aesthetics = "colour")
 p1 <- p1+  scale_shape_manual(name = "Time after fire",
-                     breaks = c("8years", "19years", "34years", "65years", "76years", "179years"),
+                     breaks = c("8years", "19years", "34years",
+                                "65years", "76years", "179years"),
                      values = c(8, 17, 15, 4, 7, 16))
 
 #CO2 vs. Soil moisture
@@ -132,8 +133,8 @@ beta  <- fixef(full)
 MyData$mu<-X%*%beta
 
 MyData$SE <- sqrt( diag( X %*% vcov(full) %*% t(X)))
-MyData$seup <- MyData$mu + 1.96 * MyData$SE #Lower bound
-MyData$selow  <- MyData$mu - 1.96 * MyData$SE #Upper bound
+MyData$seup <- MyData$mu + 1.96 * MyData$SE
+MyData$selow  <- MyData$mu - 1.96 * MyData$SE
 knitr::kable(head(MyData))
 
 p11 <- ggplot()
@@ -164,7 +165,8 @@ p11 <- p11 + scale_colour_manual(
   values = cols1,
   aesthetics = "colour")
 p11 <- p11 +  scale_shape_manual(name = "Time after fire",
-                              breaks = c("8years", "19years", "34years", "65years", "76years", "179years"),
+                              breaks = c("8years", "19years", "34years",
+                                         "65years", "76years", "179years"),
                               values = c(8, 17, 15, 4, 7, 16))
 ```
 

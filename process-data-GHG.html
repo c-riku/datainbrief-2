@@ -167,13 +167,12 @@ pre code {
 </div>
 
 
-<div id="process-chamber-based-soil-ghg-flux-data-from-gas-chromatography-and-from-vaisala" class="section level1">
-<h1>Process chamber-based soil GHG flux data from gas chromatography and from Vaisala</h1>
+<div id="process-chamber-based-soil-ghg-flux-data" class="section level1">
+<h1>Process chamber-based soil GHG flux data</h1>
 <div id="ghg-data-from-gas-chromatography" class="section level2">
 <h2>GHG data from gas chromatography</h2>
 <p>This script calculates gas (carbon dioxide, methane, nitrous oxide) flux in mg m<sup>-2</sup> s<sup>-1</sup> from gas chromatography data (concentration in ppm) using a linear regression fit.</p>
 <pre class="r"><code>#Load libraries
-library(&quot;readbulk&quot;)
 library(&quot;plyr&quot;)
 library(&quot;dplyr&quot;)
 library(&quot;minpack.lm&quot;)
@@ -182,165 +181,21 @@ library(&quot;GLDEX&quot;)
 #Set directory and load data
 Path &lt;- setwd(&quot;D:/Git/project-3/raw-data/field/&quot;)
 data &lt;- read.csv(&quot;gasvials.csv&quot;, header = TRUE)
-knitr::kable(head(data))</code></pre>
-<table style="width:100%;">
-<colgroup>
-<col width="7%" />
-<col width="7%" />
-<col width="5%" />
-<col width="2%" />
-<col width="3%" />
-<col width="7%" />
-<col width="7%" />
-<col width="4%" />
-<col width="3%" />
-<col width="7%" />
-<col width="3%" />
-<col width="5%" />
-<col width="6%" />
-<col width="4%" />
-<col width="4%" />
-<col width="7%" />
-<col width="7%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th align="right">CH4</th>
-<th align="right">N2O</th>
-<th align="right">Bottle</th>
-<th align="right">dt</th>
-<th align="right">dts</th>
-<th align="right">CollarA</th>
-<th align="right">ChamberV</th>
-<th align="left">File</th>
-<th align="right">Year</th>
-<th align="left">Intensity</th>
-<th align="left">Plot</th>
-<th align="left">Collar</th>
-<th align="right">CollarH</th>
-<th align="right">ST</th>
-<th align="right">SM</th>
-<th align="right">Pressure</th>
-<th align="right">ChamberV1</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="right">1.885442</td>
-<td align="right">0.3308134</td>
-<td align="right">101</td>
-<td align="right">0</td>
-<td align="right">0</td>
-<td align="right">0.0336535</td>
-<td align="right">0.0087993</td>
-<td align="left">00:49</td>
-<td align="right">2018</td>
-<td align="left">H</td>
-<td align="left">1</td>
-<td align="left">A</td>
-<td align="right">4.5</td>
-<td align="right">15.78</td>
-<td align="right">29.25</td>
-<td align="right">1020</td>
-<td align="right">0.00728</td>
-</tr>
-<tr class="even">
-<td align="right">1.891811</td>
-<td align="right">0.3334616</td>
-<td align="right">102</td>
-<td align="right">1</td>
-<td align="right">60</td>
-<td align="right">0.0336535</td>
-<td align="right">0.0087993</td>
-<td align="left">00:49</td>
-<td align="right">2018</td>
-<td align="left">H</td>
-<td align="left">1</td>
-<td align="left">A</td>
-<td align="right">4.5</td>
-<td align="right">15.78</td>
-<td align="right">29.25</td>
-<td align="right">1020</td>
-<td align="right">0.00728</td>
-</tr>
-<tr class="odd">
-<td align="right">1.922716</td>
-<td align="right">0.3333654</td>
-<td align="right">103</td>
-<td align="right">3</td>
-<td align="right">120</td>
-<td align="right">0.0336535</td>
-<td align="right">0.0087993</td>
-<td align="left">00:49</td>
-<td align="right">2018</td>
-<td align="left">H</td>
-<td align="left">1</td>
-<td align="left">A</td>
-<td align="right">4.5</td>
-<td align="right">15.78</td>
-<td align="right">29.25</td>
-<td align="right">1020</td>
-<td align="right">0.00728</td>
-</tr>
-<tr class="even">
-<td align="right">1.918160</td>
-<td align="right">0.3324841</td>
-<td align="right">104</td>
-<td align="right">5</td>
-<td align="right">300</td>
-<td align="right">0.0336535</td>
-<td align="right">0.0087993</td>
-<td align="left">00:49</td>
-<td align="right">2018</td>
-<td align="left">H</td>
-<td align="left">1</td>
-<td align="left">A</td>
-<td align="right">4.5</td>
-<td align="right">15.78</td>
-<td align="right">29.25</td>
-<td align="right">1020</td>
-<td align="right">0.00728</td>
-</tr>
-<tr class="odd">
-<td align="right">1.932739</td>
-<td align="right">0.3347257</td>
-<td align="right">105</td>
-<td align="right">10</td>
-<td align="right">600</td>
-<td align="right">0.0336535</td>
-<td align="right">0.0087993</td>
-<td align="left">00:49</td>
-<td align="right">2018</td>
-<td align="left">H</td>
-<td align="left">1</td>
-<td align="left">A</td>
-<td align="right">4.5</td>
-<td align="right">15.78</td>
-<td align="right">29.25</td>
-<td align="right">1020</td>
-<td align="right">0.00728</td>
-</tr>
-<tr class="even">
-<td align="right">1.912251</td>
-<td align="right">0.3356319</td>
-<td align="right">106</td>
-<td align="right">20</td>
-<td align="right">1200</td>
-<td align="right">0.0336535</td>
-<td align="right">0.0087993</td>
-<td align="left">00:49</td>
-<td align="right">2018</td>
-<td align="left">H</td>
-<td align="left">1</td>
-<td align="left">A</td>
-<td align="right">4.5</td>
-<td align="right">15.78</td>
-<td align="right">29.25</td>
-<td align="right">1020</td>
-<td align="right">0.00728</td>
-</tr>
-</tbody>
-</table>
+head(data)</code></pre>
+<pre><code>##        CH4       N2O Bottle dt  dts    CollarA    ChamberV  File Year Intensity
+## 1 1.885442 0.3308134    101  0    0 0.03365353 0.008799252 00:49 2018         H
+## 2 1.891811 0.3334616    102  1   60 0.03365353 0.008799252 00:49 2018         H
+## 3 1.922716 0.3333654    103  3  120 0.03365353 0.008799252 00:49 2018         H
+## 4 1.918160 0.3324841    104  5  300 0.03365353 0.008799252 00:49 2018         H
+## 5 1.932739 0.3347257    105 10  600 0.03365353 0.008799252 00:49 2018         H
+## 6 1.912251 0.3356319    106 20 1200 0.03365353 0.008799252 00:49 2018         H
+##   Plot Collar CollarH    ST    SM Pressure ChamberV1
+## 1    1      A     4.5 15.78 29.25     1020   0.00728
+## 2    1      A     4.5 15.78 29.25     1020   0.00728
+## 3    1      A     4.5 15.78 29.25     1020   0.00728
+## 4    1      A     4.5 15.78 29.25     1020   0.00728
+## 5    1      A     4.5 15.78 29.25     1020   0.00728
+## 6    1      A     4.5 15.78 29.25     1020   0.00728</code></pre>
 <pre class="r"><code>str(data)</code></pre>
 <pre><code>## &#39;data.frame&#39;:    498 obs. of  17 variables:
 ##  $ CH4      : num  1.89 1.89 1.92 1.92 1.93 ...
@@ -376,10 +231,7 @@ sub &lt;- data %&gt;% filter(Bottle &gt;= 113 &amp; Bottle &lt;= 118)
 
 #Model and calculate standard deviation
 m1 &lt;- lm(CH4 ~ dt, data = sub)
-coef(m1)</code></pre>
-<pre><code>##  (Intercept)           dt 
-##  2.078411374 -0.001790028</code></pre>
-<pre class="r"><code>sd2 &lt;- sd(m1$fitted.values)
+sd2 &lt;- sd(m1$fitted.values)
 
 #Plot regression line and observations
 plot(CH4 ~ dt, data = sub)
@@ -392,10 +244,7 @@ abline(m1$coefficients[1] - sd2, m1$coefficients[2])</code></pre>
 #This code removes rows 1 and 4 from the sub dataset
 sub1 &lt;- sub[-c(1,4),]
 m1 &lt;- lm(CH4 ~ dt, data = sub1)
-coef(m1)</code></pre>
-<pre><code>##  (Intercept)           dt 
-##  2.094153410 -0.002714072</code></pre>
-<pre class="r"><code>sd2 &lt;- sd(m1$fitted.values)
+sd2 &lt;- sd(m1$fitted.values)
 plot(CH4 ~ dt, data = sub1)
 abline(m1, col = &quot;blue&quot;, lwd = 2)
 abline(m1$coefficients[1] + sd2, m1$coefficients[2])
@@ -419,7 +268,7 @@ df &lt;- as.data.frame(flux)
 df &lt;- na.omit(df)
 df &lt;- fun.zero.omit(df)</code></pre>
 <p><strong>Write down average flux for chosen bottles</strong><br />
-<em>The mean flux for bottles 113-118 is</em></p>
+<em>The mean CH<sub>4</sub> flux for bottles 113-118 is</em></p>
 <pre class="r"><code>mean(df$flux)</code></pre>
 <pre><code>## [1] -6.048425e-06</code></pre>
 </div>

@@ -1,4 +1,4 @@
-# Process chamber-based soil GHG flux data from gas chromatography and from Vaisala 
+# Process chamber-based soil GHG flux data
 ## GHG data from gas chromatography
 
 This script calculates gas (carbon dioxide, methane, nitrous oxide) flux
@@ -7,7 +7,6 @@ in mg m<sup>-2</sup> s<sup>-1</sup> from gas chromatography data (concentration 
 
 ```{r message = FALSE}
 #Load libraries
-library("readbulk")
 library("plyr")
 library("dplyr")
 library("minpack.lm")
@@ -29,7 +28,6 @@ sub <- data %>% filter(Bottle >= 113 & Bottle <= 118)
 
 #Model and calculate standard deviation
 m1 <- lm(CH4 ~ dt, data = sub)
-coef(m1)
 sd2 <- sd(m1$fitted.values)
 
 #Plot regression line and observations
@@ -43,7 +41,6 @@ abline(m1$coefficients[1] - sd2, m1$coefficients[2])
 #This code removes rows 1 and 4 from the sub dataset
 sub1 <- sub[-c(1,4),]
 m1 <- lm(CH4 ~ dt, data = sub1)
-coef(m1)
 sd2 <- sd(m1$fitted.values)
 plot(CH4 ~ dt, data = sub1)
 abline(m1, col = "blue", lwd = 2)
@@ -73,7 +70,7 @@ df <- fun.zero.omit(df)
 ```
 
 **Write down average flux for chosen bottles**  
-*The mean flux for bottles 113-118 is*
+*The mean CH<sub>4</sub> flux for bottles 113-118 is*
 ```{r message = FALSE}
 mean(df$flux)
 ```
